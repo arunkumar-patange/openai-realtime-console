@@ -23,8 +23,8 @@ import { X, Edit, Zap, ArrowUp, ArrowDown } from 'react-feather';
 import { Button } from '../components/button/Button';
 import { Toggle } from '../components/toggle/Toggle';
 import { Map } from '../components/Map';
-import { RestaurantList } from '../components/RestaurantList'; // Import the new component
-import { RestaurantModal } from '../components/RestaurantModal'; // Import the modal component
+import RestaurantList from '../components/RestaurantList'; // Import the new component
+import RestaurantModal from '../components/RestaurantModal'; // Import the modal component
 
 import './ConsolePage.scss';
 import { isJsxOpeningLikeElement } from 'typescript';
