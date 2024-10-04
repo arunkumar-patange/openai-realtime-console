@@ -24,6 +24,7 @@ import { Button } from '../components/button/Button';
 import { Toggle } from '../components/toggle/Toggle';
 import { Map } from '../components/Map';
 import RestaurantList from '../components/RestaurantList'; // Import the new component
+import RestaurantModal from '../components/RestaurantModal'; // Import the modal component
 
 import './ConsolePage.scss';
 import { isJsxOpeningLikeElement } from 'typescript';
@@ -138,6 +139,7 @@ export function ConsolePage() {
   });
   const [marker, setMarker] = useState<Coordinates | null>(null);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]); // State to hold restaurant data
+  const [showModal, setShowModal] = useState(false); // State to control modal visibility
 
   /**
    * Utility for formatting the timing of logs
@@ -786,8 +788,16 @@ export function ConsolePage() {
           </div>
           <div className="content-block restaurants">
             <div className="content-block-title">search_restaurants()</div>
-            <RestaurantList restaurants={restaurants} />
+            <Button label="Show Restaurants" onClick={() => setShowModal(true)} />
           </div>
+
+          {/* Modal for displaying restaurant list within content-right */}
+          {showModal && (
+            <RestaurantModal
+              restaurants={restaurants}
+              onClose={() => setShowModal(false)}
+            />
+          )}
         </div>
       </div>
     </div>
