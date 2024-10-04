@@ -784,9 +784,12 @@ export function ConsolePage() {
               {JSON.stringify(memoryKv, null, 2)}
             </div>
           </div>
+          <div className="content-block restaurants">
+            <div className="content-block-title">search_restaurants()</div>
+            <RestaurantList restaurants={restaurants} />
+          </div>
         </div>
       </div>
-      <RestaurantList restaurants={restaurants} />
     </div>
   );
 }
