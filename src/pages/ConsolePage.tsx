@@ -790,16 +790,16 @@ export function ConsolePage() {
             <div className="content-block-title">search_restaurants()</div>
             <Button label="Show Restaurants" onClick={() => setShowModal(true)} />
           </div>
-
-          {/* Modal for displaying restaurant list within content-right */}
-          {showModal && (
-            <RestaurantModal
-              restaurants={restaurants}
-              onClose={() => setShowModal(false)}
-            />
-          )}
         </div>
       </div>
+
+      {/* Modal for displaying restaurant list, rendered outside of content-right */}
+      {showModal && (
+        <RestaurantModal
+          restaurants={restaurants}
+          onClose={() => setShowModal(false)}
+        />
+      )}
     </div>
   );
 }
