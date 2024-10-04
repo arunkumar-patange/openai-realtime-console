@@ -502,8 +502,8 @@ export function ConsolePage() {
             }
           );
           const data = await response.json();
-          if (data && data.businesses) {
-            setRestaurants(data.businesses); // Update state with fetched restaurant data
+          if (data && data.data.businesses) {
+            setRestaurants(data.data.businesses); // Update state with fetched restaurant data
           } else {
             console.error('No businesses found in the response');
             setRestaurants([]); // Reset to empty array if no data
