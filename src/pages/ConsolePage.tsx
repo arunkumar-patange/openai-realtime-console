@@ -500,10 +500,16 @@ export function ConsolePage() {
             }
           );
           const data = await response.json();
-          setRestaurants(data.businesses); // Update state with fetched restaurant data
+          if (data && data.businesses) {
+            setRestaurants(data.businesses); // Update state with fetched restaurant data
+          } else {
+            console.error('No businesses found in the response');
+            setRestaurants([]); // Reset to empty array if no data
+          }
           return data;
         } catch (error) {
           console.error('Error fetching restaurants:', error);
+          setRestaurants([]); // Reset to empty array on error
           return { error: 'Failed to fetch restaurants' };
         }
       }
