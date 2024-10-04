@@ -494,7 +494,7 @@ export function ConsolePage() {
             {
               method: 'GET',
               headers: {
-                'Authorization': 'Bearer a1c8d8acedb03aa810aa9c4ff053b90e10ddc985',
+                'Authorization': 'token a1c8d8acedb03aa810aa9c4ff053b90e10ddc985',
                 'Content-Type': 'application/json',
               },
             }
