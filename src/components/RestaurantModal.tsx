@@ -13,16 +13,58 @@ interface Restaurant {
   };
 }
 
+interface Flight {
+  id: string;
+  from: string;
+  fromCity: string;
+  to: string;
+  toCity: string;
+  airlines: {
+    code: string;
+    name: string;
+    icon: string;
+    from: string;
+    fromCity: string;
+    to: string;
+    toCity: string;
+    departureTime: {
+      dateTimeString: string;
+    };
+    arrivalTime: {
+      dateTimeString: string;
+    };
+    duration: number;
+    flightNumber: string;
+    cabinClassText: string;
+  }[];
+  departureTime: {
+    dateTimeString: string;
+  };
+  arrivalTime: {
+    dateTimeString: string;
+  };
+  price: number;
+}
+
 interface RestaurantModalProps {
   restaurants: Restaurant[];
   generatedImage: string | null; // Add generated image prop
   searchResults: any[]; // Add this prop for search results
   imageSearchResults: any[]; // Add this prop for image search results
-  displayMode: 'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | null; // Allow null
+  flights: Flight[]; // Add this prop for flight search results
+  displayMode: 'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | 'flights' | null; // Allow null
   onClose: () => void; // Function to close the modal
 }
 
-const RestaurantModal: React.FC<RestaurantModalProps> = ({ restaurants, generatedImage, searchResults, imageSearchResults, displayMode, onClose }) => {
+const RestaurantModal: React.FC<RestaurantModalProps> = ({
+  restaurants,
+  generatedImage,
+  searchResults,
+  imageSearchResults,
+  flights,
+  displayMode,
+  onClose
+}) => {
   return (
     <div className="restaurant-modal">
       <div className="modal-content">
@@ -76,6 +118,24 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({ restaurants, generate
                   <h3>{result.title}</h3> {/* Title of the search result */}
                   <a href={result.url} target="_blank" rel="noopener noreferrer">{result.url}</a> {/* Link to the result */}
                   <p>{result.content}</p> {/* Content snippet of the result */}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+
+        {displayMode === 'flights' && flights.length > 0 && (
+          <>
+            <h2>Flight Search Results</h2>
+            <ul>
+              {flights.map((flight) => (
+                <li key={flight.id}>
+                  <h3>{flight.fromCity} to {flight.toCity}</h3>
+                  <p>Flight Number: {flight.airlines[0].flightNumber} - {flight.airlines[0].name}</p>
+                  <p>Departure: {flight.departureTime.dateTimeString}</p>
+                  <p>Arrival: {flight.arrivalTime.dateTimeString}</p>
+                  <p>Duration: {Math.floor(flight.duration / 60)}h {flight.duration % 60}m</p>
+                  <p>Price: ${flight.price}</p>
                 </li>
               ))}
             </ul>

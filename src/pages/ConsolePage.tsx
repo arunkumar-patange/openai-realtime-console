@@ -68,6 +68,17 @@ interface Restaurant {
   };
 }
 
+interface Flight {
+  // Define the properties of a Flight object
+  // Example:
+  // id: string;
+  // airline: string;
+  // departure: string;
+  // arrival: string;
+  // price: number;
+  // Add more properties as needed
+}
+
 export function ConsolePage() {
   /**
    * Ask user for API Key
@@ -142,8 +153,9 @@ export function ConsolePage() {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null); // State to hold generated image
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
   const [searchResults, setSearchResults] = useState<any[]>([]); // State to hold search results
-  const [displayMode, setDisplayMode] = useState<'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | null>(null); // New state for display mode
+  const [displayMode, setDisplayMode] = useState<'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | 'flights' | null>(null); // New state for display mode
   const [imageSearchResults, setImageSearchResults] = useState<any[]>([]); // State to hold image search results
+  const [flights, setFlights] = useState<any[]>([]); // State to hold flight data
 
   /**
    * Utility for formatting the timing of logs
@@ -501,7 +513,7 @@ export function ConsolePage() {
               method: 'GET',
               headers: {
                 'Authorization': 'token a1c8d8acedb03aa810aa9c4ff053b90e10ddc985',
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
               },
             }
           );
@@ -649,7 +661,7 @@ export function ConsolePage() {
           const response = await fetch(`https://api-dev.braininc.net/be/langchain/realtime/google/customsearch/v1?q=${encodeURIComponent(query)}&searchType=image`, {
             method: 'GET',
             headers: {
-              'Authorization': 'Bearer YOUR_API_KEY', // Replace with your actual API key
+              'Authorization': 'token 343f9ba48f6e326b5f59c1a2f9f50716a2a8b3fd', // Replace with your actual API key
               'Content-Type': 'application/json',
             },
           });
@@ -665,6 +677,79 @@ export function ConsolePage() {
         } catch (error) {
           console.error('Error fetching image search results:', error);
           setImageSearchResults([]); // Reset to empty array on error
+          setDisplayMode(null); // Reset display mode
+        }
+      }
+    );
+
+    // Add the search_flights tool
+    client.addTool(
+      {
+        name: 'search_flights',
+        description: 'Searches for flights based on origin, destination, and other parameters.',
+        parameters: {
+          type: 'object',
+          required: [
+            'from',
+            'to',
+            'adults',
+            'cabinClass',
+            'trip',
+            'date'
+          ],
+          properties: {
+            from: {
+              type: 'string',
+              description: 'The IATA code of the departure airport'
+            },
+            to: {
+              type: 'string',
+              description: 'The IATA code of the arrival airport'
+            },
+            adults: {
+              type: 'integer',
+              description: 'Number of adult passengers'
+            },
+            cabinClass: {
+              type: 'string',
+              description: 'The class of cabin (e.g., economy, business)'
+            },
+            trip: {
+              type: 'string',
+              description: 'Type of trip (e.g., ONE_WAY, ROUND_TRIP)'
+            },
+            date: {
+              type: 'string',
+              description: 'Date of departure in YYYY-MM-DD format'
+            },
+            is_code: {
+              type: 'boolean',
+              description: 'Indicates whether to use airline codes in the search'
+            }
+          }
+        }
+      },
+      async ({ from, to, adults, cabinClass, trip, date, is_code }: { [key: string]: any }) => {
+        try {
+          const response = await fetch(`https://api-dev.braininc.net/be/svc-adapter/flights/search?from=${from}&to=${to}&adults=${adults}&cabinClass=${cabinClass}&trip=${trip}&date=${date}&is_code=${is_code}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': 'token 343f9ba48f6e326b5f59c1a2f9f50716a2a8b3fd', // Use the same auth token as for image search
+              'Content-Type': 'application/json',
+            },
+          });
+          const data = await response.json();
+          if (data && data.items) {
+            setFlights(data.items); // Update state with fetched flight data
+            setDisplayMode('flights'); // Set display mode to flights
+          } else {
+            console.error('No flights found in the response');
+            setFlights([]); // Reset to empty array if no data
+            setDisplayMode(null); // Reset display mode
+          }
+        } catch (error) {
+          console.error('Error fetching flights:', error);
+          setFlights([]); // Reset to empty array on error
           setDisplayMode(null); // Reset display mode
         }
       }
@@ -721,7 +806,7 @@ export function ConsolePage() {
   const handleOpenModal = () => {
     setShowModal(true);
     // Here, you can rely on the LLM to handle the function calls internally
-    // You can set the state for restaurants and generated image based on the LLM's response
+    // Example: searchFlights('BOS', 'HYD', 1, 'economy', 'ONE_WAY', '2024-10-12'); // Call the searchFlights function with example parameters
   };
 
   /**
@@ -851,7 +936,7 @@ export function ConsolePage() {
                       )}
                       {/* tool call */}
                       {!!conversationItem.formatted.tool && (
-                        <div>
+                                                <div>
                           {conversationItem.formatted.tool.name}(
                           {conversationItem.formatted.tool.arguments})
                         </div>
@@ -962,6 +1047,7 @@ export function ConsolePage() {
           generatedImage={generatedImage}
           searchResults={searchResults}
           imageSearchResults={imageSearchResults} // Pass image search results to the modal
+          flights={flights} // Pass flight search results to the modal
           displayMode={displayMode} // Pass the display mode to the modal
           onClose={() => setShowModal(false)}
         />
