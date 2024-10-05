@@ -539,7 +539,7 @@ export function ConsolePage() {
           const response = await fetch(`https://api-dev.braininc.net/be/lambda/function/stableai?prompt=${encodeURIComponent(prompt)}`, {
             method: 'GET',
             headers: {
-              'Authorization': 'Bearer a1c8d8acedb03aa810aa9c4ff053b90e10ddc985', // Add your authorization token here
+              'Authorization': 'token a1c8d8acedb03aa810aa9c4ff053b90e10ddc985', // Add your authorization token here
               'Content-Type': 'application/json',
             },
           });
