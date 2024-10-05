@@ -142,6 +142,7 @@ export function ConsolePage() {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null); // State to hold generated image
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
   const [searchResults, setSearchResults] = useState<any[]>([]); // State to hold search results
+  const [displayMode, setDisplayMode] = useState<'restaurants' | 'generatedImage' | 'searchResults' | null>(null); // New state for display mode
 
   /**
    * Utility for formatting the timing of logs
@@ -506,14 +507,17 @@ export function ConsolePage() {
           const data = await response.json();
           if (data && data.data.businesses) {
             setRestaurants(data.data.businesses); // Update state with fetched restaurant data
+            setDisplayMode('restaurants'); // Set display mode to restaurants
           } else {
             console.error('No businesses found in the response');
             setRestaurants([]); // Reset to empty array if no data
+            setDisplayMode(null); // Reset display mode
           }
           return data;
         } catch (error) {
           console.error('Error fetching restaurants:', error);
           setRestaurants([]); // Reset to empty array on error
+          setDisplayMode(null); // Reset display mode
           return { error: 'Failed to fetch restaurants' };
         }
       }
@@ -548,13 +552,16 @@ export function ConsolePage() {
           const data = await response.json();
           if (data && data.cdn_url) {
             setGeneratedImage(data.cdn_url); // Update state with the generated image URL
+            setDisplayMode('generatedImage'); // Set display mode to generated image
           } else {
             console.error('No image found in the response');
             setGeneratedImage(null); // Reset to null if no image
+            setDisplayMode(null); // Reset display mode
           }
         } catch (error) {
           console.error('Error generating image:', error);
           setGeneratedImage(null); // Reset to null on error
+          setDisplayMode(null); // Reset display mode
         }
       }
     );
@@ -604,10 +611,12 @@ export function ConsolePage() {
           });
           const data = await response.json();
           setSearchResults(data.results || []); // Update state with fetched search results
+          setDisplayMode('searchResults'); // Set display mode to search results
           return data;
         } catch (error) {
           console.error('Error performing search:', error);
           setSearchResults([]); // Reset to empty array on error
+          setDisplayMode(null); // Reset display mode
           return { error: 'Failed to perform search' };
         }
       }
@@ -903,7 +912,8 @@ export function ConsolePage() {
         <RestaurantModal
           restaurants={restaurants}
           generatedImage={generatedImage}
-          searchResults={searchResults} // Pass the search results to the modal
+          searchResults={searchResults}
+          displayMode={displayMode} // Pass the display mode to the modal
           onClose={() => setShowModal(false)}
         />
       )}
