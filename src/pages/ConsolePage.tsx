@@ -739,8 +739,8 @@ export function ConsolePage() {
             },
           });
           const data = await response.json();
-          if (data && data.items) {
-            setFlights(data.items); // Update state with fetched flight data
+          if (data && data.data.items) {
+            setFlights(data.data.items); // Update state with fetched flight data
             setDisplayMode('flights'); // Set display mode to flights
           } else {
             console.error('No flights found in the response');
