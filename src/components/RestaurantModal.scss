@@ -36,10 +36,17 @@
 ul {
   list-style-type: none; // Remove default list styling
   padding: 0; // Remove padding
+  display: grid; // Use grid layout
+  grid-template-columns: repeat(2, 1fr); // Two columns
+  gap: 20px; // Space between items
 }
 
 li {
-  margin-bottom: 20px; // Space between restaurant items
+  background-color: #f9f9f9; // Light background for cards
+  border: 1px solid #ddd; // Border for cards
+  border-radius: 8px; // Rounded corners for cards
+  padding: 10px; // Padding inside cards
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); // Subtle shadow for depth
 }
 
 img {
