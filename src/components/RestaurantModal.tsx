@@ -51,7 +51,7 @@ interface RestaurantModalProps {
   generatedImage: string | null; // Add generated image prop
   searchResults: any[]; // Add this prop for search results
   imageSearchResults: any[]; // Add this prop for image search results
-  flights: Flight[]; // Add this prop for flight search results
+  flights: any[]; // Add this prop for flight search results
   displayMode: 'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | 'flights' | null; // Allow null
   onClose: () => void; // Function to close the modal
 }
