@@ -29,6 +29,10 @@ import RestaurantModal from '../components/RestaurantModal'; // Import the modal
 import './ConsolePage.scss';
 import { isJsxOpeningLikeElement } from 'typescript';
 import { searchRestaurants, searchRestaurantsTool } from '../utils/tools/searchRestaurants';
+import { generateImage, generateImageTool } from '../utils/tools/generateImage';
+import { generalSearch, generalSearchTool } from '../utils/tools/generalSearch';
+import { searchFlights, searchFlightsTool } from '../utils/tools/searchFlights'; // Import the searchFlights tool
+import { imageSearch, imageSearchTool } from '../utils/tools/imageSearch'; // Import the imageSearch tool
 
 /**
  * Type for result from get_weather() function call
@@ -487,241 +491,89 @@ export function ConsolePage() {
         return json;
       }
     );
-    client.addTool(searchRestaurantsTool, async ({ term, location }) => {
+    client.addTool(searchRestaurantsTool, async (params: { [key: string]: any }) => {
+      const { term, location } = params; // Destructure term and location
       const { businesses, error } = await searchRestaurants({ term, location });
 
       if (error) {
-        // Handle error case
         console.error(error); // Log the error message
         setRestaurants([]); // Reset to empty array on error
         setDisplayMode(null); // Reset display mode
-        return error;
+        return { error: 'Failed to fetch restaurants' }; // Return failure message
       } else {
-        // Handle success case
         setRestaurants(businesses); // Update state with fetched restaurant data
         setDisplayMode('restaurants'); // Set display mode to restaurants
-        return businesses;
+        return businesses; // Return the fetched businesses
       }
     });
 
     // Add the generate_image tool
-    client.addTool(
-      {
-        name: 'generate_image',
-        description: 'Generates an image based on a prompt.',
-        parameters: {
-          type: 'object',
-          properties: {
-            prompt: {
-              type: 'string',
-              description: 'The prompt for the image generation.',
-            },
-          },
-          required: ['prompt'],
-        },
-      },
-      async ({ prompt }: { [key: string]: any }) => {
-        try {
-          const response = await fetch(
-            `https://api-dev.braininc.net/be/lambda/function/stableai?json=true&prompt=${encodeURIComponent(prompt)}`, {
-            method: 'GET',
-            headers: {
-              'Authorization': 'token a1c8d8acedb03aa810aa9c4ff053b90e10ddc985', // Add your authorization token here
-              'Content-Type': 'application/json',
-            },
-          });
-          const data = await response.json();
-          if (data && data.cdn_url) {
-            setGeneratedImage(data.cdn_url); // Update state with the generated image URL
-            setDisplayMode('generatedImage'); // Set display mode to generated image
-          } else {
-            console.error('No image found in the response');
-            setGeneratedImage(null); // Reset to null if no image
-            setDisplayMode(null); // Reset display mode
-          }
-        } catch (error) {
-          console.error('Error generating image:', error);
-          setGeneratedImage(null); // Reset to null on error
-          setDisplayMode(null); // Reset display mode
-        }
+    client.addTool(generateImageTool, async (params: { [key: string]: any }) => {
+      const { prompt } = params; // Destructure prompt
+      try {
+        const imageUrl = await generateImage({ prompt });
+        setGeneratedImage(imageUrl); // Update state with generated image URL
+        return imageUrl; // Return the generated image URL
+      } catch (error) {
+        console.error(error); // Log the error message
+        setGeneratedImage(null); // Reset to null on error
+        return { error: 'Failed to generate image' }; // Return failure message
       }
-    );
+    });
 
-    // Add the new general search tool
-    client.addTool(
-      {
-        name: 'general_search',
-        description: 'Performs a general search based on the provided query.',
-        parameters: {
-          type: 'object',
-          properties: {
-            query: {
-              type: 'string',
-              description: 'The query for the search.',
-            },
-            search_depth: {
-              type: 'string',
-              description: 'The depth of the search.',
-            },
-            max_results: {
-              type: 'number',
-              description: 'Maximum number of results to return.',
-            },
-          },
-          required: ['query', 'search_depth', 'max_results'],
-        },
-      },
-      async ({ query, search_depth, max_results }: { [key: string]: any }) => {
-        try {
-          const response = await fetch('https://api-dev.braininc.net/be/tavily/search', {
-            method: 'POST',
-            headers: {
-              'Authorization': 'token 343f9ba48f6e326b5f59c1a2f9f50716a2a8b3fd',
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              query,
-              search_depth,
-              include_answer: false,
-              include_images: false,
-              include_raw_content: false,
-              max_results,
-              include_domains: [],
-              exclude_domains: [],
-            }),
-          });
-          const data = await response.json();
-          setSearchResults(data.results || []); // Update state with fetched search results
-          setDisplayMode('searchResults'); // Set display mode to search results
-          return data;
-        } catch (error) {
-          console.error('Error performing search:', error);
-          setSearchResults([]); // Reset to empty array on error
-          setDisplayMode(null); // Reset display mode
-          return { error: 'Failed to perform search' };
-        }
+    // Add the general_search tool
+    client.addTool(generalSearchTool, async (params: { [key: string]: any }) => {
+      const { query, search_depth, max_results } = params; // Destructure parameters
+      try {
+        const results = await generalSearch({ query, search_depth, max_results });
+        setSearchResults(results); // Update state with search results
+        return results; // Return the search results
+      } catch (error) {
+        console.error(error); // Log the error message
+        setSearchResults([]); // Reset to empty array on error
+        return { error: 'Failed to perform search' }; // Return failure message
       }
-    );
+    });
 
     // Add the image_search tool
-    client.addTool(
-      {
-        name: 'image_search',
-        description: 'Searches for images based on a query using the Google Custom Search API.',
-        parameters: {
-          type: 'object',
-          required: ['query'],
-          properties: {
-            query: {
-              type: 'string',
-              description: 'Search query for images',
-            },
-            search_type: {
-              type: 'string',
-              description: 'Type of search to perform (e.g., "image")',
-              enum: ['image'],
-            },
-          },
-        },
-      },
-      async ({ query }: { [key: string]: any }) => {
-        try {
-          const response = await fetch(`https://api-dev.braininc.net/be/langchain/realtime/google/customsearch/v1?q=${encodeURIComponent(query)}&searchType=image`, {
-            method: 'GET',
-            headers: {
-              'Authorization': 'token 343f9ba48f6e326b5f59c1a2f9f50716a2a8b3fd', // Replace with your actual API key
-              'Content-Type': 'application/json',
-            },
-          });
-          const data = await response.json();
-          if (data.items) {
-            setImageSearchResults(data.items); // Update state with fetched image search results
-            setDisplayMode('imageSearch'); // Set display mode to image search
-          } else {
-            console.error('No images found in the response');
-            setImageSearchResults([]); // Reset to empty array if no data
-            setDisplayMode(null); // Reset display mode
-          }
-        } catch (error) {
-          console.error('Error fetching image search results:', error);
-          setImageSearchResults([]); // Reset to empty array on error
-          setDisplayMode(null); // Reset display mode
+    client.addTool(imageSearchTool, async (params: { [key: string]: any }) => {
+      const { query, searchType } = params;
+      try {
+        const { images, error } = await imageSearch({ query, searchType });
+        if (error) {
+          console.error(error);
+          setImageSearchResults([]);
+          return { error: 'Failed to fetch images' };
+        } else {
+          setImageSearchResults(images);
+          return images; // Return the image results
         }
+      } catch (error) {
+        console.error(error);
+        setImageSearchResults([]);
+        return { error: 'Failed to fetch images' };
       }
-    );
+    });
 
     // Add the search_flights tool
-    client.addTool(
-      {
-        name: 'search_flights',
-        description: 'Searches for flights based on origin, destination, and other parameters.',
-        parameters: {
-          type: 'object',
-          required: [
-            'from',
-            'to',
-            'adults',
-            'cabinClass',
-            'trip',
-            'date'
-          ],
-          properties: {
-            from: {
-              type: 'string',
-              description: 'The IATA code of the departure airport'
-            },
-            to: {
-              type: 'string',
-              description: 'The IATA code of the arrival airport'
-            },
-            adults: {
-              type: 'integer',
-              description: 'Number of adult passengers'
-            },
-            cabinClass: {
-              type: 'string',
-              description: 'The class of cabin (e.g., economy, business)'
-            },
-            trip: {
-              type: 'string',
-              description: 'Type of trip (e.g., ONE_WAY, ROUND_TRIP)'
-            },
-            date: {
-              type: 'string',
-              description: 'Date of departure in YYYY-MM-DD format'
-            },
-            is_code: {
-              type: 'boolean',
-              description: 'Indicates whether to use airline codes in the search'
-            }
-          }
+    client.addTool(searchFlightsTool, async (params: { [key: string]: any }) => {
+      const { origin, destination, departureDate, returnDate, passengers } = params;
+      try {
+        const { flights, error } = await searchFlights({ origin, destination, departureDate, returnDate, passengers });
+        if (error) {
+          console.error(error);
+          setFlights([]);
+          return { error: 'Failed to fetch flights' };
+        } else {
+          setFlights(flights);
+          return flights; // Return the flight results
         }
-      },
-      async ({ from, to, adults, cabinClass, trip, date, is_code }: { [key: string]: any }) => {
-        try {
-          const response = await fetch(`https://api-dev.braininc.net/be/svc-adapter/flights/search?from=${from}&to=${to}&adults=${adults}&cabinClass=${cabinClass}&trip=${trip}&date=${date}&is_code=${is_code}`, {
-            method: 'GET',
-            headers: {
-              'Authorization': 'token 343f9ba48f6e326b5f59c1a2f9f50716a2a8b3fd', // Use the same auth token as for image search
-              'Content-Type': 'application/json',
-            },
-          });
-          const data = await response.json();
-          if (data && data.data.items) {
-            setFlights(data.data.items); // Update state with fetched flight data
-            setDisplayMode('flights'); // Set display mode to flights
-          } else {
-            console.error('No flights found in the response');
-            setFlights([]); // Reset to empty array if no data
-            setDisplayMode(null); // Reset display mode
-          }
-        } catch (error) {
-          console.error('Error fetching flights:', error);
-          setFlights([]); // Reset to empty array on error
-          setDisplayMode(null); // Reset display mode
-        }
+      } catch (error) {
+        console.error(error);
+        setFlights([]);
+        return { error: 'Failed to fetch flights' };
       }
-    );
+    });
 
     // handle realtime events from client + server for event logging
     client.on('realtime.event', (realtimeEvent: RealtimeEvent) => {
