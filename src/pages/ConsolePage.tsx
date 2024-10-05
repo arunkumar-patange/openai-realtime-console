@@ -556,10 +556,10 @@ export function ConsolePage() {
     });
 
     // Add the search_flights tool
-    client.addTool(searchFlightsTool, async (params: { [key: string]: any }) => {
-      const { origin, destination, departureDate, returnDate, passengers } = params;
+    client.addTool(searchFlightsTool,
+      async ({ from, to, date, returnDate, adults, cabinClass, trip, is_code }: { [key: string]: any }) => {
       try {
-        const { flights, error } = await searchFlights({ origin, destination, departureDate, returnDate, passengers });
+        const { flights, error } = await searchFlights({ from, to, date, returnDate, adults, cabinClass, trip, is_code });
         if (error) {
           console.error(error);
           setFlights([]);
