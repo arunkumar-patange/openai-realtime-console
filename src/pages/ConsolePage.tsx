@@ -513,6 +513,7 @@ export function ConsolePage() {
       try {
         const imageUrl = await generateImage({ prompt });
         setGeneratedImage(imageUrl); // Update state with generated image URL
+        setDisplayMode('generatedImage'); // Set display mode to generated image
         return imageUrl; // Return the generated image URL
       } catch (error) {
         console.error(error); // Log the error message
@@ -527,6 +528,7 @@ export function ConsolePage() {
       try {
         const results = await generalSearch({ query, search_depth, max_results });
         setSearchResults(results); // Update state with search results
+        setDisplayMode('searchResults');
         return results; // Return the search results
       } catch (error) {
         console.error(error); // Log the error message
@@ -546,6 +548,7 @@ export function ConsolePage() {
           return { error: 'Failed to fetch images' };
         } else {
           setImageSearchResults(images);
+          setDisplayMode('imageSearch')
           return images; // Return the image results
         }
       } catch (error) {
@@ -566,6 +569,7 @@ export function ConsolePage() {
           return { error: 'Failed to fetch flights' };
         } else {
           setFlights(flights);
+          setDisplayMode('flights');
           return flights; // Return the flight results
         }
       } catch (error) {
