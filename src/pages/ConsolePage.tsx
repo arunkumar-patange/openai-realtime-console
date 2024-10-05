@@ -141,6 +141,7 @@ export function ConsolePage() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]); // State to hold restaurant data
   const [generatedImage, setGeneratedImage] = useState<string | null>(null); // State to hold generated image
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
+  const [searchResults, setSearchResults] = useState<any[]>([]); // State to hold search results
 
   /**
    * Utility for formatting the timing of logs
@@ -558,6 +559,60 @@ export function ConsolePage() {
       }
     );
 
+    // Add the new general search tool
+    client.addTool(
+      {
+        name: 'general_search',
+        description: 'Performs a general search based on the provided query.',
+        parameters: {
+          type: 'object',
+          properties: {
+            query: {
+              type: 'string',
+              description: 'The query for the search.',
+            },
+            search_depth: {
+              type: 'string',
+              description: 'The depth of the search.',
+            },
+            max_results: {
+              type: 'number',
+              description: 'Maximum number of results to return.',
+            },
+          },
+          required: ['query', 'search_depth', 'max_results'],
+        },
+      },
+      async ({ query, search_depth, max_results }: { [key: string]: any }) => {
+        try {
+          const response = await fetch('https://api-dev.braininc.net/be/tavily/search', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'token 343f9ba48f6e326b5f59c1a2f9f50716a2a8b3fd',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              query,
+              search_depth,
+              include_answer: false,
+              include_images: false,
+              include_raw_content: false,
+              max_results,
+              include_domains: [],
+              exclude_domains: [],
+            }),
+          });
+          const data = await response.json();
+          setSearchResults(data.results || []); // Update state with fetched search results
+          return data;
+        } catch (error) {
+          console.error('Error performing search:', error);
+          setSearchResults([]); // Reset to empty array on error
+          return { error: 'Failed to perform search' };
+        }
+      }
+    );
+
     // handle realtime events from client + server for event logging
     client.on('realtime.event', (realtimeEvent: RealtimeEvent) => {
       setRealtimeEvents((realtimeEvents) => {
@@ -848,6 +903,7 @@ export function ConsolePage() {
         <RestaurantModal
           restaurants={restaurants}
           generatedImage={generatedImage}
+          searchResults={searchResults} // Pass the search results to the modal
           onClose={() => setShowModal(false)}
         />
       )}
