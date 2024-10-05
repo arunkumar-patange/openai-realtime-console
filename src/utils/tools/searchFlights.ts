@@ -57,7 +57,7 @@ export const searchFlightsTool = {
       },
       trip: {
         type: 'string',
-        description: 'The type of trip (e.g., one-way, round-trip).',
+        description: 'Type of trip (e.g., ONE_WAY, ROUND_TRIP)',
       },
       is_code: {
         type: 'boolean',
