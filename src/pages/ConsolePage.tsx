@@ -545,8 +545,8 @@ export function ConsolePage() {
             },
           });
           const data = await response.json();
-          if (data && data.image_url) {
-            setGeneratedImage(data.image_url); // Update state with the generated image URL
+          if (data && data.cdn_url) {
+            setGeneratedImage(data.cdn_url); // Update state with the generated image URL
           } else {
             console.error('No image found in the response');
             setGeneratedImage(null); // Reset to null if no image
