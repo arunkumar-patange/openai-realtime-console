@@ -139,6 +139,7 @@ export function ConsolePage() {
   });
   const [marker, setMarker] = useState<Coordinates | null>(null);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]); // State to hold restaurant data
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null); // State to hold generated image
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
 
   /**
@@ -517,6 +518,45 @@ export function ConsolePage() {
       }
     );
 
+    // Add the generate_image tool
+    client.addTool(
+      {
+        name: 'generate_image',
+        description: 'Generates an image based on a prompt.',
+        parameters: {
+          type: 'object',
+          properties: {
+            prompt: {
+              type: 'string',
+              description: 'The prompt for the image generation.',
+            },
+          },
+          required: ['prompt'],
+        },
+      },
+      async ({ prompt }: { [key: string]: any }) => {
+        try {
+          const response = await fetch(`https://api-dev.braininc.net/be/lambda/function/stableai?prompt=${encodeURIComponent(prompt)}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': 'Bearer a1c8d8acedb03aa810aa9c4ff053b90e10ddc985', // Add your authorization token here
+              'Content-Type': 'application/json',
+            },
+          });
+          const data = await response.json();
+          if (data && data.image_url) {
+            setGeneratedImage(data.image_url); // Update state with the generated image URL
+          } else {
+            console.error('No image found in the response');
+            setGeneratedImage(null); // Reset to null if no image
+          }
+        } catch (error) {
+          console.error('Error generating image:', error);
+          setGeneratedImage(null); // Reset to null on error
+        }
+      }
+    );
+
     // handle realtime events from client + server for event logging
     client.on('realtime.event', (realtimeEvent: RealtimeEvent) => {
       setRealtimeEvents((realtimeEvents) => {
@@ -561,6 +601,15 @@ export function ConsolePage() {
       client.reset();
     };
   }, []);
+
+  /**
+   * Function to handle opening the modal
+   */
+  const handleOpenModal = () => {
+    setShowModal(true);
+    // Here, you can rely on the LLM to handle the function calls internally
+    // You can set the state for restaurants and generated image based on the LLM's response
+  };
 
   /**
    * Render the application
@@ -788,15 +837,16 @@ export function ConsolePage() {
           </div>
           <div className="content-block restaurants">
             <div className="content-block-title">search_restaurants()</div>
-            <Button label="Show Restaurants" onClick={() => setShowModal(true)} />
+            <Button label="Show Restaurants and Generate Image" onClick={handleOpenModal} />
           </div>
         </div>
       </div>
 
-      {/* Modal for displaying restaurant list, rendered outside of content-right */}
+      {/* Modal for displaying restaurant list and generated image */}
       {showModal && (
         <RestaurantModal
           restaurants={restaurants}
+          generatedImage={generatedImage}
           onClose={() => setShowModal(false)}
         />
       )}

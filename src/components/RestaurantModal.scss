@@ -47,3 +47,13 @@ img {
   height: auto; // Maintain aspect ratio
   border-radius: 4px; // Rounded corners for images
 }
+
+.generated-image {
+  margin-top: 20px; // Space above the generated image
+}
+
+.generated-image img {
+  width: 100%; // Make generated image responsive
+  height: auto; // Maintain aspect ratio
+  border-radius: 4px; // Rounded corners for images
+}

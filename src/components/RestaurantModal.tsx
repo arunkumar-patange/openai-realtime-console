@@ -15,10 +15,11 @@ interface Restaurant {
 
 interface RestaurantModalProps {
   restaurants: Restaurant[];
+  generatedImage: string | null; // Add generated image prop
   onClose: () => void; // Function to close the modal
 }
 
-const RestaurantModal: React.FC<RestaurantModalProps> = ({ restaurants, onClose }) => {
+const RestaurantModal: React.FC<RestaurantModalProps> = ({ restaurants, generatedImage, onClose }) => {
   return (
     <div className="restaurant-modal">
       <div className="modal-content">
@@ -36,6 +37,12 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({ restaurants, onClose 
           </ul>
         ) : (
           <p>No restaurants found.</p>
+        )}
+        {generatedImage && (
+          <div className="generated-image">
+            <h3>Generated Image:</h3>
+            <img src={generatedImage} alt="Generated" />
+          </div>
         )}
       </div>
     </div>
