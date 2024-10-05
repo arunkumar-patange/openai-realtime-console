@@ -28,6 +28,7 @@ import RestaurantModal from '../components/RestaurantModal'; // Import the modal
 
 import './ConsolePage.scss';
 import { isJsxOpeningLikeElement } from 'typescript';
+import { searchRestaurants, searchRestaurantsTool } from '../utils/tools/searchRestaurants';
 
 /**
  * Type for result from get_weather() function call
@@ -486,55 +487,22 @@ export function ConsolePage() {
         return json;
       }
     );
-    client.addTool(
-      {
-        name: 'search_restaurants',
-        description: 'Searches for restaurants based on a term and location.',
-        parameters: {
-          type: 'object',
-          properties: {
-            term: {
-              type: 'string',
-              description: 'Search term for the restaurant.',
-            },
-            location: {
-              type: 'string',
-              description: 'Location to search for restaurants.',
-            },
-          },
-          required: ['term', 'location'],
-        },
-      },
-      async ({ term, location }: { [key: string]: any }) => {
-        try {
-          const response = await fetch(
-            `https://api-dev.braininc.net/be/svc-adapter/yelp/businesses/search?categories=restaurants&categories=food&limit=10&location=${encodeURIComponent(location)}&offset=0&term=${encodeURIComponent(term)}`,
-            {
-              method: 'GET',
-              headers: {
-                'Authorization': 'token a1c8d8acedb03aa810aa9c4ff053b90e10ddc985',
-                'Content-Type': 'application/json'
-              },
-            }
-          );
-          const data = await response.json();
-          if (data && data.data.businesses) {
-            setRestaurants(data.data.businesses); // Update state with fetched restaurant data
-            setDisplayMode('restaurants'); // Set display mode to restaurants
-          } else {
-            console.error('No businesses found in the response');
-            setRestaurants([]); // Reset to empty array if no data
-            setDisplayMode(null); // Reset display mode
-          }
-          return data;
-        } catch (error) {
-          console.error('Error fetching restaurants:', error);
-          setRestaurants([]); // Reset to empty array on error
-          setDisplayMode(null); // Reset display mode
-          return { error: 'Failed to fetch restaurants' };
-        }
+    client.addTool(searchRestaurantsTool, async ({ term, location }) => {
+      const { businesses, error } = await searchRestaurants({ term, location });
+
+      if (error) {
+        // Handle error case
+        console.error(error); // Log the error message
+        setRestaurants([]); // Reset to empty array on error
+        setDisplayMode(null); // Reset display mode
+        return error;
+      } else {
+        // Handle success case
+        setRestaurants(businesses); // Update state with fetched restaurant data
+        setDisplayMode('restaurants'); // Set display mode to restaurants
+        return businesses;
       }
-    );
+    });
 
     // Add the generate_image tool
     client.addTool(
