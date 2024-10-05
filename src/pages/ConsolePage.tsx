@@ -142,7 +142,8 @@ export function ConsolePage() {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null); // State to hold generated image
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
   const [searchResults, setSearchResults] = useState<any[]>([]); // State to hold search results
-  const [displayMode, setDisplayMode] = useState<'restaurants' | 'generatedImage' | 'searchResults' | null>(null); // New state for display mode
+  const [displayMode, setDisplayMode] = useState<'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | null>(null); // New state for display mode
+  const [imageSearchResults, setImageSearchResults] = useState<any[]>([]); // State to hold image search results
 
   /**
    * Utility for formatting the timing of logs
@@ -622,6 +623,53 @@ export function ConsolePage() {
       }
     );
 
+    // Add the image_search tool
+    client.addTool(
+      {
+        name: 'image_search',
+        description: 'Searches for images based on a query using the Google Custom Search API.',
+        parameters: {
+          type: 'object',
+          required: ['query'],
+          properties: {
+            query: {
+              type: 'string',
+              description: 'Search query for images',
+            },
+            search_type: {
+              type: 'string',
+              description: 'Type of search to perform (e.g., "image")',
+              enum: ['image'],
+            },
+          },
+        },
+      },
+      async ({ query }: { [key: string]: any }) => {
+        try {
+          const response = await fetch(`https://api-dev.braininc.net/be/langchain/realtime/google/customsearch/v1?q=${encodeURIComponent(query)}&searchType=image`, {
+            method: 'GET',
+            headers: {
+              'Authorization': 'Bearer YOUR_API_KEY', // Replace with your actual API key
+              'Content-Type': 'application/json',
+            },
+          });
+          const data = await response.json();
+          if (data.items) {
+            setImageSearchResults(data.items); // Update state with fetched image search results
+            setDisplayMode('imageSearch'); // Set display mode to image search
+          } else {
+            console.error('No images found in the response');
+            setImageSearchResults([]); // Reset to empty array if no data
+            setDisplayMode(null); // Reset display mode
+          }
+        } catch (error) {
+          console.error('Error fetching image search results:', error);
+          setImageSearchResults([]); // Reset to empty array on error
+          setDisplayMode(null); // Reset display mode
+        }
+      }
+    );
+
     // handle realtime events from client + server for event logging
     client.on('realtime.event', (realtimeEvent: RealtimeEvent) => {
       setRealtimeEvents((realtimeEvents) => {
@@ -887,7 +935,7 @@ export function ConsolePage() {
             </div>
             <div className="content-block-body full">
               {coords && (
-                <Map
+                                <Map
                   center={[coords.lat, coords.lng]}
                   location={coords.location}
                 />
@@ -913,6 +961,7 @@ export function ConsolePage() {
           restaurants={restaurants}
           generatedImage={generatedImage}
           searchResults={searchResults}
+          imageSearchResults={imageSearchResults} // Pass image search results to the modal
           displayMode={displayMode} // Pass the display mode to the modal
           onClose={() => setShowModal(false)}
         />

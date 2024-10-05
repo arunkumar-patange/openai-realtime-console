@@ -17,17 +17,34 @@ interface RestaurantModalProps {
   restaurants: Restaurant[];
   generatedImage: string | null; // Add generated image prop
   searchResults: any[]; // Add this prop for search results
-  displayMode: 'restaurants' | 'generatedImage' | 'searchResults'; // New prop for display mode
+  imageSearchResults: any[]; // Add this prop for image search results
+  displayMode: 'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | null; // Allow null
   onClose: () => void; // Function to close the modal
 }
 
-const RestaurantModal: React.FC<RestaurantModalProps> = ({ restaurants, generatedImage, searchResults, displayMode, onClose }) => {
+const RestaurantModal: React.FC<RestaurantModalProps> = ({ restaurants, generatedImage, searchResults, imageSearchResults, displayMode, onClose }) => {
   return (
     <div className="restaurant-modal">
       <div className="modal-content">
         <span className="close" onClick={onClose}>&times;</span>
         
         {/* Render based on display mode */}
+        {displayMode === 'imageSearch' && (
+          <>
+            <h2>Image Search Results</h2>
+            <ul>
+              {imageSearchResults.map((imageResult, index) => (
+                <li key={index}>
+                  <h3>{imageResult.title}</h3>
+                  <img src={imageResult.image.thumbnailLink} alt={imageResult.title} />
+                  <p>{imageResult.snippet}</p>
+                  <a href={imageResult.link} target="_blank" rel="noopener noreferrer">View Image</a>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+        
         {displayMode === 'restaurants' && restaurants.length > 0 && (
           <>
             <h2>Restaurants</h2>
@@ -66,7 +83,7 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({ restaurants, generate
         )}
         
         {/* Optional: Message when nothing is available */}
-        {displayMode !== 'restaurants' && displayMode !== 'generatedImage' && displayMode !== 'searchResults' && (
+        {displayMode === null && (
           <p>No results to display.</p>
         )}
       </div>
