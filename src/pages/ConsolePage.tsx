@@ -33,7 +33,7 @@ import { generateImage, generateImageTool } from '../utils/tools/generateImage';
 import { generalSearch, generalSearchTool } from '../utils/tools/generalSearch';
 import { searchFlights, searchFlightsTool } from '../utils/tools/searchFlights'; // Import the searchFlights tool
 import { imageSearch, imageSearchTool } from '../utils/tools/imageSearch'; // Import the imageSearch tool
-import { showMyCalendarTool } from '../utils/tools/showMyCalendar'; // Import the showMyCalendar tool
+import { showMyCalendar, showMyCalendarTool } from '../utils/tools/showMyCalendar'; // Import the showMyCalendar tool
 
 /**
  * Type for result from get_weather() function call

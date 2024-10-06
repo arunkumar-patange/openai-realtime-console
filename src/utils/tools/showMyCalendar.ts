@@ -30,8 +30,8 @@ export const showMyCalendar = async (params: { max_results: number }) => {
 
 // Tool metadata for showMyCalendar
 export const showMyCalendarTool = {
-  name: 'show_my_calendar',
-  description: 'Fetches calendar events from the user\'s primary calendar.',
+  "name": "get_calendar_events",
+  "description": "Get or show calendar events from the users Google Calendar and should always be called anytime user references the calendar",
   parameters: {
     type: 'object',
     properties: {
