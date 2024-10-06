@@ -33,6 +33,7 @@ import { generateImage, generateImageTool } from '../utils/tools/generateImage';
 import { generalSearch, generalSearchTool } from '../utils/tools/generalSearch';
 import { searchFlights, searchFlightsTool } from '../utils/tools/searchFlights'; // Import the searchFlights tool
 import { imageSearch, imageSearchTool } from '../utils/tools/imageSearch'; // Import the imageSearch tool
+import { getAuthUrl, getAccessToken, fetchCalendarEvents } from '../utils/tools/calendarAccess';
 
 /**
  * Type for result from get_weather() function call
@@ -83,6 +84,19 @@ interface Flight {
   // price: number;
   // Add more properties as needed
 }
+
+// Function to initiate OAuth flow
+const initiateOAuth = () => {
+  const authUrl = getAuthUrl();
+  window.location.href = authUrl; // Redirect user to the authorization URL
+};
+
+// After redirect, handle the callback
+const handleAuthCallback = async (code: string) => {
+  const tokens = await getAccessToken(code); // Exchange code for tokens
+  const events = await fetchCalendarEvents(); // Fetch calendar events
+  console.log(events); // Handle the fetched events as needed
+};
 
 export function ConsolePage() {
   /**
@@ -633,6 +647,14 @@ export function ConsolePage() {
     // Example: searchFlights('BOS', 'HYD', 1, 'economy', 'ONE_WAY', '2024-10-12'); // Call the searchFlights function with example parameters
   };
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    if (code) {
+      handleAuthCallback(code); // Call the function with the authorization code
+    }
+  }, []);
+
   /**
    * Render the application
    */
@@ -876,6 +898,7 @@ export function ConsolePage() {
           onClose={() => setShowModal(false)}
         />
       )}
+      <Button label="Connect to Google Calendar" onClick={initiateOAuth} />
     </div>
   );
 }
