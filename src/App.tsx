@@ -58,7 +58,7 @@ function App() {
         }
         console.log('Token response:', response);
         // After successful sign-in, you can now fetch calendar events
-        fetchCalendarEvents();
+        // fetchCalendarEvents();
       },
     });
 
