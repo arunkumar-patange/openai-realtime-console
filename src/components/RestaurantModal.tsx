@@ -53,7 +53,7 @@ interface RestaurantModalProps {
   searchResults: any[]; // Add this prop for search results
   imageSearchResults: any[]; // Add this prop for image search results
   flights: any[]; // Add this prop for flight search results
-  displayMode: 'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | 'flights' | null; // Allow null
+  displayMode: 'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | 'flights' | 'calendar' | null; // Added 'calendar' mode
   onClose: () => void; // Function to close the modal
 }
 
@@ -142,11 +142,14 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
             </ul>
           </>
         )}
+
+        {displayMode === 'calendar' && ( // New condition for calendar display mode
+          <CalendarPage /> // Render the CalendarPage component
+        )}
         
         {/* Optional: Message when nothing is available */}
         {displayMode === null && (
           <p>No results to display.</p>
-          <CalendarPage /> {/* Include the new CalendarPage */}
         )}
       </div>
     </div>

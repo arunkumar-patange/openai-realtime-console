@@ -1,6 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const CalendarPage = () => {
+  const [events, setEvents] = useState<any[]>([]); // State to hold calendar events
+  const [loading, setLoading] = useState<boolean>(true); // State to manage loading status
+  const [error, setError] = useState<string | null>(null); // State to manage error messages
+
   useEffect(() => {
     const fetchCalendarEvents = () => {
       if (window.gapi && window.gapi.client && window.gapi.client.calendar) {
@@ -11,21 +15,18 @@ const CalendarPage = () => {
           singleEvents: true,
           orderBy: 'startTime',
         }).then((response: any) => {
-          const events = response.result.items;
-          if (events && events.length) {
-            console.log('Upcoming events:');
-            events.forEach((event: any) => {
-              const when = event.start.dateTime || event.start.date;
-              console.log(`${event.summary} (${when})`);
-            });
-          } else {
-            console.log('No upcoming events found.');
-          }
+          const fetchedEvents = response.result.items;
+          setEvents(fetchedEvents); // Set the fetched events to state
+          setLoading(false); // Set loading to false
         }).catch((error: any) => {
           console.error('Error fetching calendar events:', error);
+          setError('Error fetching calendar events.'); // Set error message
+          setLoading(false); // Set loading to false
         });
       } else {
         console.error('gapi.client.calendar is not loaded.');
+        setError('Google API client is not loaded.'); // Set error message
+        setLoading(false); // Set loading to false
       }
     };
 
@@ -35,6 +36,8 @@ const CalendarPage = () => {
         fetchCalendarEvents();
       } else {
         console.error('gapi is not loaded.');
+        setError('Google API is not loaded.'); // Set error message
+        setLoading(false); // Set loading to false
       }
     };
 
@@ -44,7 +47,22 @@ const CalendarPage = () => {
   return (
     <div>
       <h2>Calendar Events</h2>
-      {/* Additional UI for displaying events can be added here */}
+      {loading && <p>Loading events...</p>} {/* Loading message */}
+      {error && <p style={{ color: 'red' }}>{error}</p>} {/* Error message */}
+      {events.length > 0 ? (
+        <ul>
+          {events.map((event: any) => {
+            const when = event.start.dateTime || event.start.date;
+            return (
+              <li key={event.id}>
+                <strong>{event.summary}</strong> ({when})
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        !loading && <p>No upcoming events found.</p> // Message when no events are found
+      )}
     </div>
   );
 };
