@@ -1,7 +1,20 @@
 declare global {
-  interface Window {
-    gapi: any; // You can replace 'any' with a more specific type if you have one
+    interface Window {
+      gapi: any;
+      google: {
+        accounts: {
+          oauth2: {
+            initTokenClient: (config: {
+              client_id: string;
+              scope: string;
+              callback: (tokenResponse: any) => void;
+            }) => {
+              requestAccessToken: () => void;
+            };
+          };
+        };
+      };
+    }
   }
-}
 
 export {};
