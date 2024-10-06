@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 const CalendarPage = () => {
   useEffect(() => {
     const fetchCalendarEvents = () => {
-      if (window.gapi.client.calendar) {
+      if (window.gapi && window.gapi.client && window.gapi.client.calendar) {
         window.gapi.client.calendar.events.list({
           calendarId: 'primary',
           timeMin: new Date().toISOString(),
@@ -25,11 +25,20 @@ const CalendarPage = () => {
           console.error('Error fetching calendar events:', error);
         });
       } else {
-        console.error('Calendar API is not loaded on gapi.client.');
+        console.error('gapi.client.calendar is not loaded.');
       }
     };
 
-    fetchCalendarEvents(); // Call the function to fetch events
+    // Ensure gapi is loaded before calling fetchCalendarEvents
+    const checkGapiLoaded = () => {
+      if (window.gapi) {
+        fetchCalendarEvents();
+      } else {
+        console.error('gapi is not loaded.');
+      }
+    };
+
+    checkGapiLoaded(); // Call the function to check gapi loading
   }, []);
 
   return (

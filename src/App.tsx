@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ConsolePage } from './pages/ConsolePage';
-import { CalendarPage } from './pages/CalendarPage'; // Import the new CalendarPage
+import CalendarPage from './pages/CalendarPage'; // Corrected import statement
 import './App.scss';
 
 function App() {
