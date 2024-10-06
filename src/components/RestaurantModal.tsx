@@ -1,5 +1,6 @@
 import React from 'react';
 import './RestaurantModal.scss'; // Import your styles
+import CalendarPage from '../pages/CalendarPage'; // Corrected import statement
 
 interface Restaurant {
   id: string;
@@ -145,6 +146,7 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
         {/* Optional: Message when nothing is available */}
         {displayMode === null && (
           <p>No results to display.</p>
+          <CalendarPage /> {/* Include the new CalendarPage */}
         )}
       </div>
     </div>
