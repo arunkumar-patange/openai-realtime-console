@@ -33,6 +33,7 @@ import { generateImage, generateImageTool } from '../utils/tools/generateImage';
 import { generalSearch, generalSearchTool } from '../utils/tools/generalSearch';
 import { searchFlights, searchFlightsTool } from '../utils/tools/searchFlights'; // Import the searchFlights tool
 import { imageSearch, imageSearchTool } from '../utils/tools/imageSearch'; // Import the imageSearch tool
+import { showMyCalendarTool } from '../utils/tools/showMyCalendar'; // Import the showMyCalendar tool
 
 /**
  * Type for result from get_weather() function call
@@ -158,7 +159,7 @@ export function ConsolePage() {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null); // State to hold generated image
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
   const [searchResults, setSearchResults] = useState<any[]>([]); // State to hold search results
-  const [displayMode, setDisplayMode] = useState<'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | 'flights' | null>(null); // New state for display mode
+  const [displayMode, setDisplayMode] = useState<'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | 'flights' | 'calendar' | null>(null); // New state for display mode
   const [imageSearchResults, setImageSearchResults] = useState<any[]>([]); // State to hold image search results
   const [flights, setFlights] = useState<any[]>([]); // State to hold flight data
 
@@ -578,6 +579,21 @@ export function ConsolePage() {
         return { error: 'Failed to fetch flights' };
       }
     });
+
+    // Add the showMyCalendar tool
+    client.addTool(
+      showMyCalendarTool, // Add the showMyCalendar tool
+      async ({ max_results }: { [key: string]: any }) => {
+        try {
+          const events = await showMyCalendar({ max_results }); // Call the showMyCalendar function
+          setDisplayMode('calendar'); // Set display mode to calendar
+          return events; // Return the fetched events
+        } catch (error) {
+          console.error(error); // Log the error message
+          return { error: 'Failed to fetch calendar events' }; // Return failure message
+        }
+      }
+    );
 
     // handle realtime events from client + server for event logging
     client.on('realtime.event', (realtimeEvent: RealtimeEvent) => {
