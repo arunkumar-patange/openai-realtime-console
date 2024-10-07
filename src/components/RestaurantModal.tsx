@@ -54,7 +54,7 @@ interface RestaurantModalProps {
   searchResults: any[]; // Add this prop for search results
   imageSearchResults: any[]; // Add this prop for image search results
   flights: any[]; // Add this prop for flight search results
-  displayMode: 'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | 'flights' | 'calendar' | null; // Added 'calendar' mode
+  displayMode: 'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | 'flights' | 'calendar' | 'algorand' | null; // Added 'calendar' mode
   onClose: () => void; // Function to close the modal
 }
 
