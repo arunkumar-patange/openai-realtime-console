@@ -619,7 +619,18 @@ export function ConsolePage() {
     tools.forEach(({ tool, func }) => {
       client.addTool(tool, async (params: { [key: string]: any }) => {
         try {
-          const result = await func(params);
+          const defaultParams = {
+            address: '',
+            assetId: 0,
+            limit: 10,
+            minRound: 0,
+            maxRound: 0,
+            roundNumber: 1,
+            appId: 1,
+            ...params,
+          };
+          const result = await func(defaultParams);
+          setDisplayMode('algorand'); // Set display mode to calendar
           return result;
         } catch (error) {
           console.error(`Error performing ${tool.name}:`, error);

@@ -1,6 +1,7 @@
 import React from 'react';
 import './RestaurantModal.scss'; // Import your styles
 import CalendarPage from '../pages/CalendarPage'; // Corrected import statement
+import AlgorandPage from '../pages/AlgorandPage'; // Corrected import statement
 
 interface Restaurant {
   id: string;
@@ -145,6 +146,10 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
 
         {displayMode === 'calendar' && ( // New condition for calendar display mode
           <CalendarPage /> // Render the CalendarPage component
+        )}
+
+        {displayMode === 'algorand' && ( // New condition for calendar display mode
+          <AlgorandPage /> // Render the CalendarPage component
         )}
         
         {/* Optional: Message when nothing is available */}
