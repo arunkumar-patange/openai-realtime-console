@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ConsolePage } from './pages/ConsolePage';
+import CalendarPage from './pages/CalendarPage'; // Corrected import statement
 import './App.scss';
 
 function App() {
@@ -57,44 +58,17 @@ function App() {
         }
         console.log('Token response:', response);
         // After successful sign-in, you can now fetch calendar events
-        fetchCalendarEvents();
+        // fetchCalendarEvents();
       },
     });
 
     tokenClient.requestAccessToken();
   };
 
-  // Fetch Calendar Events
-  const fetchCalendarEvents = () => {
-    if (window.gapi.client.calendar) {
-      window.gapi.client.calendar.events.list({
-        calendarId: 'primary',
-        timeMin: new Date().toISOString(),
-        maxResults: 10,
-        singleEvents: true,
-        orderBy: 'startTime',
-      }).then((response: any) => {
-        const events = response.result.items;
-        if (events && events.length) {
-          console.log('Upcoming events:');
-          events.forEach((event: any) => {
-            const when = event.start.dateTime || event.start.date;
-            console.log(`${event.summary} (${when})`);
-          });
-        } else {
-          console.log('No upcoming events found.');
-        }
-      }).catch((error: any) => {
-        console.error('Error fetching calendar events:', error);
-      });
-    } else {
-      console.error('Calendar API is not loaded on gapi.client.');
-    }
-  };
-
   return (
     <div data-component="App">
       <ConsolePage />
+      <CalendarPage /> {/* Include the new CalendarPage */}
       <button onClick={handleAuthClick}>Sign In with Google</button>
     </div>
   );

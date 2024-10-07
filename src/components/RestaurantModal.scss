@@ -19,6 +19,21 @@
   border-radius: 8px; // Rounded corners
 }
 
+.restaurant-block {
+  position: relative; /* Allow positioning for child elements */
+  max-height: 80vh; /* Set a maximum height of 80% of the viewport height */
+  overflow-y: auto; /* Enable vertical scrolling if content exceeds max height */
+  padding: 20px; /* Add padding for the block view */
+  background-color: #fff; /* White background for the block */
+  border: 1px solid #888; /* Border for the block */
+  border-radius: 8px; /* Rounded corners */
+  margin: 20px 0; /* Margin to separate from other content */
+}
+
+.block-content {
+  /* Styles for the content inside the block */
+}
+
 .close {
   color: #aaa;
   float: right;
@@ -34,33 +49,36 @@
 }
 
 ul {
-  list-style-type: none; // Remove default list styling
-  padding: 0; // Remove padding
-  display: grid; // Use grid layout
-  grid-template-columns: repeat(2, 1fr); // Two columns
-  gap: 20px; // Space between items
+  list-style-type: none; /* Remove default list styling */
+  padding: 0; /* Remove padding */
+  display: grid; /* Use grid layout */
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Responsive columns */
+  gap: 20px; /* Space between items */
 }
 
 li {
-  background-color: #f9f9f9; // Light background for cards
-  border: 1px solid #ddd; // Border for cards
-  border-radius: 8px; // Rounded corners for cards
-  padding: 10px; // Padding inside cards
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); // Subtle shadow for depth
+  background-color: #f9f9f9; /* Light background for cards */
+  border: 1px solid #ddd; /* Border for cards */
+  border-radius: 8px; /* Rounded corners for cards */
+  padding: 10px; /* Padding inside cards */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack children vertically */
+  align-items: center; /* Center items horizontally */
 }
 
 img {
-  width: 100%; // Make images responsive
-  height: auto; // Maintain aspect ratio
-  border-radius: 4px; // Rounded corners for images
+  width: 100%; /* Make images responsive */
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 4px; /* Rounded corners for images */
 }
 
 .generated-image {
-  margin-top: 20px; // Space above the generated image
+  margin-top: 20px; /* Space above the generated image */
 }
 
 .generated-image img {
-  width: 100%; // Make generated image responsive
-  height: auto; // Maintain aspect ratio
-  border-radius: 4px; // Rounded corners for images
+  width: 100%; /* Make generated image responsive */
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 4px; /* Rounded corners for images */
 }

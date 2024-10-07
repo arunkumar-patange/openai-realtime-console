@@ -33,6 +33,7 @@ import { generateImage, generateImageTool } from '../utils/tools/generateImage';
 import { generalSearch, generalSearchTool } from '../utils/tools/generalSearch';
 import { searchFlights, searchFlightsTool } from '../utils/tools/searchFlights'; // Import the searchFlights tool
 import { imageSearch, imageSearchTool } from '../utils/tools/imageSearch'; // Import the imageSearch tool
+import { showMyCalendar, showMyCalendarTool } from '../utils/tools/showMyCalendar'; // Import the showMyCalendar tool
 
 /**
  * Type for result from get_weather() function call
@@ -158,9 +159,10 @@ export function ConsolePage() {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null); // State to hold generated image
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
   const [searchResults, setSearchResults] = useState<any[]>([]); // State to hold search results
-  const [displayMode, setDisplayMode] = useState<'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | 'flights' | null>(null); // New state for display mode
+  const [displayMode, setDisplayMode] = useState<'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | 'flights' | 'calendar' | null>(null); // New state for display mode
   const [imageSearchResults, setImageSearchResults] = useState<any[]>([]); // State to hold image search results
   const [flights, setFlights] = useState<any[]>([]); // State to hold flight data
+  const [typedMessage, setTypedMessage] = useState(''); // State to hold the typed message
 
   /**
    * Utility for formatting the timing of logs
@@ -579,6 +581,21 @@ export function ConsolePage() {
       }
     });
 
+    // Add the showMyCalendar tool
+    client.addTool(
+      showMyCalendarTool, // Add the showMyCalendar tool
+      async ({ max_results }: { [key: string]: any }) => {
+        try {
+          const events = await showMyCalendar({ max_results }); // Call the showMyCalendar function
+          setDisplayMode('calendar'); // Set display mode to calendar
+          return events; // Return the fetched events
+        } catch (error) {
+          console.error(error); // Log the error message
+          return { error: 'Failed to fetch calendar events' }; // Return failure message
+        }
+      }
+    );
+
     // handle realtime events from client + server for event logging
     client.on('realtime.event', (realtimeEvent: RealtimeEvent) => {
       setRealtimeEvents((realtimeEvents) => {
@@ -633,6 +650,20 @@ export function ConsolePage() {
     // Example: searchFlights('BOS', 'HYD', 1, 'economy', 'ONE_WAY', '2024-10-12'); // Call the searchFlights function with example parameters
   };
 
+  const handleInputChange = (event: any) => {
+    setTypedMessage(event.target.value); // Update state with the current input value
+  };
+
+  const handleInputSubmit = async (event: any) => {
+    const client = clientRef.current;
+    event.preventDefault(); // Prevent default form submission
+    if (typedMessage.trim()) {
+      // Send the typed message to the conversation
+      await client.sendUserMessageContent([{ type: 'input_text', text: typedMessage }]);
+      setTypedMessage(''); // Clear the input field
+    }
+  };
+
   /**
    * Render the application
    */
@@ -665,6 +696,20 @@ export function ConsolePage() {
               <div className="visualization-entry server">
                 <canvas ref={serverCanvasRef} />
               </div>
+            </div>
+            <div className="morph-interface">
+              {/* Modal for displaying restaurant list and generated image */}
+              {showModal && (
+                <RestaurantModal
+                  restaurants={restaurants}
+                  generatedImage={generatedImage}
+                  searchResults={searchResults}
+                  imageSearchResults={imageSearchResults} // Pass image search results to the modal
+                  flights={flights} // Pass flight search results to the modal
+                  displayMode={displayMode} // Pass the display mode to the modal
+                  onClose={() => setShowModal(false)}
+                />
+              )}
             </div>
             <div className="content-block-title">events</div>
             <div className="content-block-body" ref={eventsScrollRef}>
@@ -804,6 +849,7 @@ export function ConsolePage() {
             />
             <div className="spacer" />
             {isConnected && canPushToTalk && (
+              <>
               <Button
                 label={isRecording ? 'release to send' : 'push to talk'}
                 buttonStyle={isRecording ? 'alert' : 'regular'}
@@ -811,6 +857,17 @@ export function ConsolePage() {
                 onMouseDown={startRecording}
                 onMouseUp={stopRecording}
               />
+              <form onSubmit={handleInputSubmit}>
+                <input
+                  type="text"
+                  value={typedMessage}
+                  onChange={handleInputChange}
+                  placeholder="Type your message..."
+                  className="text-input"
+                />
+                <button type="submit">Send</button>
+              </form>
+              </>
             )}
             <div className="spacer" />
             <Button
@@ -863,19 +920,6 @@ export function ConsolePage() {
           </div>
         </div>
       </div>
-
-      {/* Modal for displaying restaurant list and generated image */}
-      {showModal && (
-        <RestaurantModal
-          restaurants={restaurants}
-          generatedImage={generatedImage}
-          searchResults={searchResults}
-          imageSearchResults={imageSearchResults} // Pass image search results to the modal
-          flights={flights} // Pass flight search results to the modal
-          displayMode={displayMode} // Pass the display mode to the modal
-          onClose={() => setShowModal(false)}
-        />
-      )}
     </div>
   );
 }
