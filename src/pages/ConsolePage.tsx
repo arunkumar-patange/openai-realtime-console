@@ -162,6 +162,7 @@ export function ConsolePage() {
   const [displayMode, setDisplayMode] = useState<'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | 'flights' | 'calendar' | null>(null); // New state for display mode
   const [imageSearchResults, setImageSearchResults] = useState<any[]>([]); // State to hold image search results
   const [flights, setFlights] = useState<any[]>([]); // State to hold flight data
+  const [typedMessage, setTypedMessage] = useState(''); // State to hold the typed message
 
   /**
    * Utility for formatting the timing of logs
@@ -649,6 +650,19 @@ export function ConsolePage() {
     // Example: searchFlights('BOS', 'HYD', 1, 'economy', 'ONE_WAY', '2024-10-12'); // Call the searchFlights function with example parameters
   };
 
+  const handleInputChange = (event) => {
+    setTypedMessage(event.target.value); // Update state with the current input value
+  };
+
+  const handleInputSubmit = async (event) => {
+    event.preventDefault(); // Prevent default form submission
+    if (typedMessage.trim()) {
+      // Send the typed message to the conversation
+      await client.sendUserMessageContent([{ type: 'text', text: typedMessage }]);
+      setTypedMessage(''); // Clear the input field
+    }
+  };
+
   /**
    * Render the application
    */
@@ -827,6 +841,16 @@ export function ConsolePage() {
                 onMouseDown={startRecording}
                 onMouseUp={stopRecording}
               />
+              <form onSubmit={handleInputSubmit}>
+                <input
+                  type="text"
+                  value={typedMessage}
+                  onChange={handleInputChange}
+                  placeholder="Type your message..."
+                  className="text-input"
+                />
+                <button type="submit">Send</button>
+              </form>
             )}
             <div className="spacer" />
             <Button
