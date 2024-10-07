@@ -697,6 +697,20 @@ export function ConsolePage() {
                 <canvas ref={serverCanvasRef} />
               </div>
             </div>
+            <div className="morph-interface">
+              {/* Modal for displaying restaurant list and generated image */}
+              {showModal && (
+                <RestaurantModal
+                  restaurants={restaurants}
+                  generatedImage={generatedImage}
+                  searchResults={searchResults}
+                  imageSearchResults={imageSearchResults} // Pass image search results to the modal
+                  flights={flights} // Pass flight search results to the modal
+                  displayMode={displayMode} // Pass the display mode to the modal
+                  onClose={() => setShowModal(false)}
+                />
+              )}
+            </div>
             <div className="content-block-title">events</div>
             <div className="content-block-body" ref={eventsScrollRef}>
               {!realtimeEvents.length && `awaiting connection...`}
@@ -906,19 +920,6 @@ export function ConsolePage() {
           </div>
         </div>
       </div>
-
-      {/* Modal for displaying restaurant list and generated image */}
-      {showModal && (
-        <RestaurantModal
-          restaurants={restaurants}
-          generatedImage={generatedImage}
-          searchResults={searchResults}
-          imageSearchResults={imageSearchResults} // Pass image search results to the modal
-          flights={flights} // Pass flight search results to the modal
-          displayMode={displayMode} // Pass the display mode to the modal
-          onClose={() => setShowModal(false)}
-        />
-      )}
     </div>
   );
 }
