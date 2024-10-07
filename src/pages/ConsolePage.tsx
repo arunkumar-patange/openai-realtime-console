@@ -34,6 +34,18 @@ import { generalSearch, generalSearchTool } from '../utils/tools/generalSearch';
 import { searchFlights, searchFlightsTool } from '../utils/tools/searchFlights'; // Import the searchFlights tool
 import { imageSearch, imageSearchTool } from '../utils/tools/imageSearch'; // Import the imageSearch tool
 import { showMyCalendar, showMyCalendarTool } from '../utils/tools/showMyCalendar'; // Import the showMyCalendar tool
+import {
+  searchTransactions,
+  searchTransactionsTool,
+  getAccountInformation,
+  getAccountInformationTool,
+  getAssetInformation,
+  getAssetInformationTool,
+  getBlockInformation,
+  getBlockInformationTool,
+  getApplicationInformation,
+  getApplicationInformationTool } from '../utils/tools/algorand';
+
 
 /**
  * Type for result from get_weather() function call
@@ -595,6 +607,26 @@ export function ConsolePage() {
         }
       }
     );
+
+    const tools = [
+      { tool: searchTransactionsTool, func: searchTransactions },
+      { tool: getAccountInformationTool, func: getAccountInformation },
+      { tool: getAssetInformationTool, func: getAssetInformation },
+      { tool: getBlockInformationTool, func: getBlockInformation },
+      { tool: getApplicationInformationTool, func: getApplicationInformation },
+    ];
+
+    tools.forEach(({ tool, func }) => {
+      client.addTool(tool, async (params: { [key: string]: any }) => {
+        try {
+          const result = await func(params);
+          return result;
+        } catch (error) {
+          console.error(`Error performing ${tool.name}:`, error);
+          throw new Error(`Failed to perform ${tool.name}`);
+        }
+      });
+    });
 
     // handle realtime events from client + server for event logging
     client.on('realtime.event', (realtimeEvent: RealtimeEvent) => {
