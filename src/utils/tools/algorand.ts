@@ -13,7 +13,7 @@ export const searchTransactions = async (params: { address?: string; assetId?: n
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-Algo-API-Token': process.env.ALGO_API_TOKEN
+        'X-Algo-API-Token': process.env.REACT_APP_ALGO_API_TOKEN
       },
     });
 
@@ -39,7 +39,7 @@ export const getAccountInformation = async (params: { address: string }) => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-Algo-API-Token': process.env.ALGO_API_TOKEN
+        'X-Algo-API-Token': process.env.REACT_APP_ALGO_API_TOKEN
       },
     });
 
@@ -64,7 +64,7 @@ export const getAssetInformation = async (params: { assetId: number }) => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-Algo-API-Token': process.env.ALGO_API_TOKEN
+        'X-Algo-API-Token': process.env.REACT_APP_ALGO_API_TOKEN
       },
     });
 
@@ -89,7 +89,7 @@ export const getBlockInformation = async (params: { roundNumber: number }) => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-Algo-API-Token': process.env.ALGO_API_TOKEN
+        'X-Algo-API-Token': process.env.REACT_APP_ALGO_API_TOKEN
       },
     });
 
@@ -114,7 +114,7 @@ export const getApplicationInformation = async (params: { appId: number }) => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-Algo-API-Token': process.env.ALGO_API_TOKEN
+        'X-Algo-API-Token': process.env.REACT_APP_ALGO_API_TOKEN
       },
     });
 
