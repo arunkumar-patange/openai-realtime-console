@@ -1,4 +1,15 @@
 import { useEffect, useState } from 'react';
+import {
+  searchTransactions,
+  searchTransactionsTool,
+  getAccountInformation,
+  getAccountInformationTool,
+  getAssetInformation,
+  getAssetInformationTool,
+  getBlockInformation,
+  getBlockInformationTool,
+  getApplicationInformation,
+  getApplicationInformationTool } from '../utils/tools/algorand';
 
 const AlgorandPage = ({ accountData, assetData, blockData, applicationData }: any) => {
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -13,30 +24,31 @@ const AlgorandPage = ({ accountData, assetData, blockData, applicationData }: an
     const fetchAlgorandData = async () => {
       setLoading(true);
       setError(null);
+      const params : any = {};
       try {
         // Simulate fetching real data using LLM function calls if no initial data is provided
         if (!accountData) {
-          const accountDataFetched = await getAccountInformation({ address: params.address });
+          const accountDataFetched = await getAccountInformation({ address: params?.address });
           setAccountInfo(accountDataFetched);
         }
 
         if (!assetData) {
-          const assetDataFetched = await getAssetInformation({ assetId: params.assetId });
+          const assetDataFetched = await getAssetInformation({ assetId: params?.assetId });
           setAssetInfo(assetDataFetched);
         }
 
         if (!blockData) {
-          const blockDataFetched = await getBlockInformation({ roundNumber: params.roundNumber });
+          const blockDataFetched = await getBlockInformation({ roundNumber: params?.roundNumber });
           setBlockInfo(blockDataFetched);
         }
 
         if (!applicationData) {
-          const applicationDataFetched = await getApplicationInformation({ appId: params.appId });
+          const applicationDataFetched = await getApplicationInformation({ appId: params?.appId });
           setApplicationInfo(applicationDataFetched);
         }
 
         // Transactions are always fetched dynamically
-        const transactionsData = await searchTransactions({ limit: params.limit });
+        const transactionsData = await searchTransactions({ limit: params?.limit });
         setTransactions(transactionsData);
       } catch (err) {
         console.error('Error fetching Algorand data:', err);
