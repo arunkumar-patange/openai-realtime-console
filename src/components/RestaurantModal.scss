@@ -19,6 +19,18 @@
   border-radius: 8px; // Rounded corners
 }
 
+.restaurant-block {
+  padding: 20px; // Add padding for the block view
+  background-color: #fff; // White background for the block
+  border: 1px solid #888; // Border for the block
+  border-radius: 8px; // Rounded corners
+  margin: 20px 0; // Margin to separate from other content
+}
+
+.block-content {
+  // Styles for the content inside the block
+}
+
 .close {
   color: #aaa;
   float: right;

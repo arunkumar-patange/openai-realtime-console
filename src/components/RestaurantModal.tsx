@@ -67,8 +67,8 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
   onClose
 }) => {
   return (
-    <div className="restaurant-modal">
-      <div className="modal-content">
+    <div className="xrestaurant-modal restaurant-block">
+      <div className="xmodal-content block-content">
         <span className="close" onClick={onClose}>&times;</span>
         
         {/* Render based on display mode */}
