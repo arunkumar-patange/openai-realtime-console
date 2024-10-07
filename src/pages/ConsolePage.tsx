@@ -655,7 +655,7 @@ export function ConsolePage() {
   };
 
   const handleInputSubmit = async (event: any) => {
-    const client = clientRef.client;
+    const client = clientRef.current;
     event.preventDefault(); // Prevent default form submission
     if (typedMessage.trim()) {
       // Send the typed message to the conversation
