@@ -650,15 +650,16 @@ export function ConsolePage() {
     // Example: searchFlights('BOS', 'HYD', 1, 'economy', 'ONE_WAY', '2024-10-12'); // Call the searchFlights function with example parameters
   };
 
-  const handleInputChange = (event) => {
+  const handleInputChange = (event: any) => {
     setTypedMessage(event.target.value); // Update state with the current input value
   };
 
-  const handleInputSubmit = async (event) => {
+  const handleInputSubmit = async (event: any) => {
+    const client = clientRef.client;
     event.preventDefault(); // Prevent default form submission
     if (typedMessage.trim()) {
       // Send the typed message to the conversation
-      await client.sendUserMessageContent([{ type: 'text', text: typedMessage }]);
+      await client.sendUserMessageContent([{ type: 'input_text', text: typedMessage }]);
       setTypedMessage(''); // Clear the input field
     }
   };
@@ -834,6 +835,7 @@ export function ConsolePage() {
             />
             <div className="spacer" />
             {isConnected && canPushToTalk && (
+              <>
               <Button
                 label={isRecording ? 'release to send' : 'push to talk'}
                 buttonStyle={isRecording ? 'alert' : 'regular'}
@@ -851,6 +853,7 @@ export function ConsolePage() {
                 />
                 <button type="submit">Send</button>
               </form>
+              </>
             )}
             <div className="spacer" />
             <Button
