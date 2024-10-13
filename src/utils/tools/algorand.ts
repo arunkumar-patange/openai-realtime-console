@@ -9,7 +9,7 @@ export const searchTransactions = async (params: { address?: string; assetId?: n
     if (minRound) queryParams.append('min-round', minRound.toString());
     if (maxRound) queryParams.append('max-round', maxRound.toString());
 
-    const response = await fetch(`http://149.28.93.109:4190/v2/transactions?${queryParams.toString()}`, {
+    const response = await fetch(`${process.env.REACT_APP_ALGORAND_API}/v2/transactions?${queryParams.toString()}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ export const searchTransactions = async (params: { address?: string; assetId?: n
 export const getAccountInformation = async (params: { address: string }) => {
   const { address } = params;
   try {
-    const response = await fetch(`http://149.28.93.109:4190/v2/accounts/${address}`, {
+    const response = await fetch(`${process.env.REACT_APP_ALGORAND_API}/v2/accounts/${address}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ export const getAccountInformation = async (params: { address: string }) => {
 export const getAssetInformation = async (params: { assetId: number }) => {
   const { assetId } = params;
   try {
-    const response = await fetch(`http://149.28.93.109:4190/v2/assets/${assetId}`, {
+    const response = await fetch(`${process.env.REACT_APP_ALGORAND_API}/v2/assets/${assetId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ export const getAssetInformation = async (params: { assetId: number }) => {
 export const getBlockInformation = async (params: { roundNumber: number }) => {
   const { roundNumber } = params;
   try {
-    const response = await fetch(`http://149.28.93.109:4190/v2/blocks/${roundNumber}`, {
+    const response = await fetch(`${process.env.REACT_APP_ALGORAND_API}/v2/blocks/${roundNumber}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ export const getBlockInformation = async (params: { roundNumber: number }) => {
 export const getApplicationInformation = async (params: { appId: number }) => {
   const { appId } = params;
   try {
-    const response = await fetch(`http://149.28.93.109:4190/v2/applications/${appId}`, {
+    const response = await fetch(`${process.env.REACT_APP_ALGORAND_API}/v2/applications/${appId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

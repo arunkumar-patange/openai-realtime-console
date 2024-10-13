@@ -31,6 +31,7 @@ import { isJsxOpeningLikeElement } from 'typescript';
 import { searchRestaurants, searchRestaurantsTool } from '../utils/tools/searchRestaurants';
 import { generateImage, generateImageTool } from '../utils/tools/generateImage';
 import { generalSearch, generalSearchTool } from '../utils/tools/generalSearch';
+import { generalReSearch, generalResearchTool } from '../utils/tools/generalSearch';
 import { searchFlights, searchFlightsTool } from '../utils/tools/searchFlights'; // Import the searchFlights tool
 import { imageSearch, imageSearchTool } from '../utils/tools/imageSearch'; // Import the imageSearch tool
 import { showMyCalendar, showMyCalendarTool } from '../utils/tools/showMyCalendar'; // Import the showMyCalendar tool
@@ -95,6 +96,18 @@ interface Flight {
   // arrival: string;
   // price: number;
   // Add more properties as needed
+}
+
+enum DisplayMode {
+  RESTAURANTS = 'restaurants',
+  GENERATED_IMAGE = 'generatedImage',
+  SEARCH_RESULTS = 'searchResults',
+  IMAGE_SEARCH = 'imageSearch',
+  FLIGHTS = 'flights',
+  CALENDAR = 'calendar',
+  ALGORAND = 'algorand',
+  RESERACH = 'generalReSearch',
+  NONE = ''
 }
 
 export function ConsolePage() {
@@ -171,7 +184,7 @@ export function ConsolePage() {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null); // State to hold generated image
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
   const [searchResults, setSearchResults] = useState<any[]>([]); // State to hold search results
-  const [displayMode, setDisplayMode] = useState<'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | 'flights' | 'calendar' | null>(null); // New state for display mode
+  const [displayMode, setDisplayMode] = useState<DisplayMode>(DisplayMode.NONE); // New state for display mode
   const [imageSearchResults, setImageSearchResults] = useState<any[]>([]); // State to hold image search results
   const [flights, setFlights] = useState<any[]>([]); // State to hold flight data
   const [typedMessage, setTypedMessage] = useState(''); // State to hold the typed message
@@ -609,14 +622,15 @@ export function ConsolePage() {
     );
 
     const tools = [
-      { tool: searchTransactionsTool, func: searchTransactions },
-      { tool: getAccountInformationTool, func: getAccountInformation },
-      { tool: getAssetInformationTool, func: getAssetInformation },
-      { tool: getBlockInformationTool, func: getBlockInformation },
-      { tool: getApplicationInformationTool, func: getApplicationInformation },
+      { tool: searchTransactionsTool, func: searchTransactions, displayMode: 'algorand' },
+      { tool: getAccountInformationTool, func: getAccountInformation, displayMode: 'algorand' },
+      { tool: getAssetInformationTool, func: getAssetInformation, displayMode: 'algorand' },
+      { tool: getBlockInformationTool, func: getBlockInformation, displayMode: 'algorand'},
+      { tool: getApplicationInformationTool, func: getApplicationInformation, displayMode: 'algorand' },
+      { tool: generalResearchTool, func: generalReSearch, displayMode: 'generalReSearch' },
     ];
 
-    tools.forEach(({ tool, func }) => {
+    tools.forEach(({ tool, func, displayMode }) => {
       client.addTool(tool, async (params: { [key: string]: any }) => {
         try {
           const defaultParams = {
@@ -627,10 +641,11 @@ export function ConsolePage() {
             maxRound: 0,
             roundNumber: 1,
             appId: 1,
+            query: '',
             ...params,
           };
           const result = await func(defaultParams);
-          setDisplayMode('algorand'); // Set display mode to calendar
+          setDisplayMode(displayMode); // Set display mode to calendar
           return result;
         } catch (error) {
           console.error(`Error performing ${tool.name}:`, error);

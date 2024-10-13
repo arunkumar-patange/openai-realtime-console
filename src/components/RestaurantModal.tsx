@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 import './RestaurantModal.scss'; // Import your styles
 import CalendarPage from '../pages/CalendarPage'; // Corrected import statement
 import AlgorandPage from '../pages/AlgorandPage'; // Corrected import statement
@@ -48,13 +49,24 @@ interface Flight {
   price: number;
 }
 
+type DisplayMode =
+  | 'restaurants'
+  | 'generatedImage'
+  | 'searchResults'
+  | 'imageSearch'
+  | 'flights'
+  | 'calendar'
+  | 'algorand'
+  | 'generalReSearch'
+  | null;
+
 interface RestaurantModalProps {
   restaurants: Restaurant[];
   generatedImage: string | null; // Add generated image prop
   searchResults: any[]; // Add this prop for search results
   imageSearchResults: any[]; // Add this prop for image search results
   flights: any[]; // Add this prop for flight search results
-  displayMode: 'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | 'flights' | 'calendar' | 'algorand' | null; // Added 'calendar' mode
+  displayMode: DisplayMode;
   onClose: () => void; // Function to close the modal
 }
 
@@ -64,6 +76,7 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
   searchResults,
   imageSearchResults,
   flights,
+  generalReSearchResult,
   displayMode,
   onClose
 }) => {
@@ -71,7 +84,7 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
     <div className="xrestaurant-modal restaurant-block">
       <div className="xmodal-content block-content">
         <span className="close" onClick={onClose}>&times;</span>
-        
+
         {/* Render based on display mode */}
         {displayMode === 'imageSearch' && (
           <>
@@ -88,6 +101,15 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
             </ul>
           </>
         )}
+
+        {displayMode === 'generalReSearch' && (
+        <>
+          <h2>Research Topic</h2>
+          <ReactMarkdown>
+            {generalReSearchResult} {/* Assuming this contains the markdown content as a string */}
+          </ReactMarkdown>
+        </>
+      )}
         
         {displayMode === 'restaurants' && restaurants.length > 0 && (
           <>
