@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import './RestaurantModal.scss'; // Import your styles
 import CalendarPage from '../pages/CalendarPage'; // Corrected import statement
@@ -81,13 +81,37 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
   displayMode,
   onClose
 }) => {
+  const [history, setHistory] = useState<DisplayMode[]>([displayMode]); // State to maintain history
+  const [currentIndex, setCurrentIndex] = useState(0); // Current index in history
+
+  useEffect(() => {
+    setHistory((prev) => [...prev.slice(0, currentIndex + 1), displayMode]); // Update history on displayMode change
+    setCurrentIndex((prev) => prev + 1); // Move to the new index
+  }, [displayMode]);
+
+  const goBack = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex((prev) => prev - 1);
+    }
+  };
+
+  const goForward = () => {
+    if (currentIndex < history.length - 1) {
+      setCurrentIndex((prev) => prev + 1);
+    }
+  };
+
   return (
     <div className="xrestaurant-modal restaurant-block">
       <div className="xmodal-content block-content">
         <span className="close" onClick={onClose}>&times;</span>
 
-        {/* Render based on display mode */}
-        {displayMode === 'imageSearch' && (
+        {/* Navigation buttons */}
+        <button onClick={goBack} disabled={currentIndex === 0}>Back</button>
+        <button onClick={goForward} disabled={currentIndex === history.length - 1}>Forward</button>
+
+        {/* Render based on current display mode */}
+        {history[currentIndex] === 'imageSearch' && (
           <>
             <h2>Image Search Results</h2>
             <ul>
@@ -103,7 +127,7 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
           </>
         )}
 
-        {displayMode === 'generalReSearch' && (
+        {history[currentIndex] === 'generalReSearch' && (
         <>
           <h2>Research Topic</h2>
           <div dangerouslySetInnerHTML={{ __html: generalReSearchResult }} />
@@ -113,7 +137,7 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
         </>
       )}
         
-        {displayMode === 'restaurants' && restaurants.length > 0 && (
+        {history[currentIndex] === 'restaurants' && restaurants.length > 0 && (
           <>
             <h2>Restaurants</h2>
             <ul>
@@ -128,14 +152,14 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
           </>
         )}
         
-        {displayMode === 'generatedImage' && generatedImage && (
+        {history[currentIndex] === 'generatedImage' && generatedImage && (
           <div className="generated-image">
             <h3>Generated Image</h3>
             <img src={generatedImage} alt="Generated" />
           </div>
         )}
         
-        {displayMode === 'searchResults' && searchResults.length > 0 && (
+        {history[currentIndex] === 'searchResults' && searchResults.length > 0 && (
           <>
             <h2>Search Results</h2>
             <ul>
@@ -150,7 +174,7 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
           </>
         )}
 
-        {displayMode === 'flights' && flights.length > 0 && (
+        {history[currentIndex] === 'flights' && flights.length > 0 && (
           <>
             <h2>Flight Search Results</h2>
             <ul>
@@ -168,16 +192,16 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
           </>
         )}
 
-        {displayMode === 'calendar' && ( // New condition for calendar display mode
+        {history[currentIndex] === 'calendar' && (
           <CalendarPage /> // Render the CalendarPage component
         )}
 
-        {displayMode === 'algorand' && ( // New condition for calendar display mode
-          <AlgorandPage /> // Render the CalendarPage component
+        {history[currentIndex] === 'algorand' && (
+          <AlgorandPage /> // Render the AlgorandPage component
         )}
         
         {/* Optional: Message when nothing is available */}
-        {displayMode === null && (
+        {history[currentIndex] === null && (
           <p>No results to display.</p>
         )}
       </div>
