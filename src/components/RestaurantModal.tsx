@@ -106,9 +106,10 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
         {displayMode === 'generalReSearch' && (
         <>
           <h2>Research Topic</h2>
-          <ReactMarkdown>
-            {generalReSearchResult} {/* Assuming this contains the markdown content as a string */}
-          </ReactMarkdown>
+          <div dangerouslySetInnerHTML={{ __html: generalReSearchResult }} />
+          {/*<ReactMarkdown>
+            {generalReSearchResult}
+          </ReactMarkdown>*/}
         </>
       )}
         

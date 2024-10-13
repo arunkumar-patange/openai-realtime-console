@@ -648,7 +648,7 @@ export function ConsolePage() {
           const result = await func(defaultParams);
           setDisplayMode(displayMode); // Set display mode to calendar
           if (displayMode === DisplayMode.RESERACH) {
-              setgeneralReSearchResult(result);
+            setgeneralReSearchResult(result.research);
           }
           return result;
         } catch (error) {
