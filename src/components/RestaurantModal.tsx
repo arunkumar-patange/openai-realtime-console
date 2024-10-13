@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import './RestaurantModal.scss'; // Import your styles
 import CalendarPage from '../pages/CalendarPage'; // Corrected import statement
@@ -81,81 +81,39 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
   displayMode,
   onClose
 }) => {
-  const [history, setHistory] = useState<DisplayMode[]>([displayMode]); // State to maintain history
-  const [currentIndex, setCurrentIndex] = useState(0); // Current index in history
-  const [isHistoryEnabled, setIsHistoryEnabled] = useState(true); // Toggle for history
-
-  useEffect(() => {
-    if (isHistoryEnabled) {
-      // Update history only if the new displayMode is different from the current one
-      if (displayMode !== history[currentIndex]) {
-        setHistory((prev) => [...prev.slice(0, currentIndex + 1), displayMode]);
-        setCurrentIndex((prev) => prev + 1);
-      }
-    }
-  }, [displayMode]);
-
-  const goBack = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
-    }
-  };
-
-  const goForward = () => {
-    if (currentIndex < history.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-    }
-  };
-
-  const toggleHistory = () => {
-    setIsHistoryEnabled((prev) => !prev);
-    if (isHistoryEnabled) {
-      // If turning off history, reset to the current displayMode
-      setHistory([displayMode]);
-      setCurrentIndex(0);
-    }
-  };
-
   return (
     <div className="xrestaurant-modal restaurant-block">
       <div className="xmodal-content block-content">
         <span className="close" onClick={onClose}>&times;</span>
 
-        {/* Toggle History Button */}
-        <button onClick={toggleHistory}>
-          {isHistoryEnabled ? 'Disable History' : 'Enable History'}
-        </button>
-
-        {/* Navigation buttons */}
-        {isHistoryEnabled && (
+        {/* Render based on display mode */}
+        {displayMode === 'imageSearch' && (
           <>
-            <button onClick={goBack} disabled={currentIndex === 0}>Back</button>
-            <button onClick={goForward} disabled={currentIndex === history.length - 1}>Forward</button>
+            <h2>Image Search Results</h2>
+            <ul>
+              {imageSearchResults.map((imageResult, index) => (
+                <li key={index}>
+                  <h3>{imageResult.title}</h3>
+                  <img src={imageResult.image.thumbnailLink} alt={imageResult.title} />
+                  <p>{imageResult.snippet}</p>
+                  <a href={imageResult.link} target="_blank" rel="noopener noreferrer">View Image</a>
+                </li>
+              ))}
+            </ul>
           </>
         )}
 
-        {/* Render based on current display mode */}
-        {isHistoryEnabled ? history[currentIndex] : displayMode === 'generalReSearch' && (
+        {displayMode === 'generalReSearch' && (
         <>
           <h2>Research Topic</h2>
-          <div dangerouslySetInnerHTML={{ __html: generalReSearchResult }} /> {/* Render HTML content */}
+          <div dangerouslySetInnerHTML={{ __html: generalReSearchResult }} />
+          {/*<ReactMarkdown>
+            {generalReSearchResult}
+          </ReactMarkdown>*/}
         </>
       )}
         
-        {isHistoryEnabled ? history[currentIndex] === 'restaurants' && restaurants.length > 0 && (
-          <>
-            <h2>Restaurants</h2>
-            <ul>
-              {restaurants.map((restaurant) => (
-                <li key={restaurant.id}>
-                  <h3>{restaurant.name}</h3>
-                  <img src={restaurant.image_url} alt={restaurant.name} />
-                  <p>{restaurant.location.address1}, {restaurant.location.city}</p>
-                </li>
-              ))}
-            </ul>
-          </>
-        ) : displayMode === 'restaurants' && restaurants.length > 0 && (
+        {displayMode === 'restaurants' && restaurants.length > 0 && (
           <>
             <h2>Restaurants</h2>
             <ul>
@@ -170,32 +128,14 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
           </>
         )}
         
-        {isHistoryEnabled ? history[currentIndex] === 'generatedImage' && generatedImage && (
-          <div className="generated-image">
-            <h3>Generated Image</h3>
-            <img src={generatedImage} alt="Generated" />
-          </div>
-        ) : displayMode === 'generatedImage' && generatedImage && (
+        {displayMode === 'generatedImage' && generatedImage && (
           <div className="generated-image">
             <h3>Generated Image</h3>
             <img src={generatedImage} alt="Generated" />
           </div>
         )}
         
-        {isHistoryEnabled ? history[currentIndex] === 'searchResults' && searchResults.length > 0 && (
-          <>
-            <h2>Search Results</h2>
-            <ul>
-              {searchResults.map((result, index) => (
-                <li key={index}>
-                  <h3>{result.title}</h3> {/* Title of the search result */}
-                  <a href={result.url} target="_blank" rel="noopener noreferrer">{result.url}</a> {/* Link to the result */}
-                  <p>{result.content}</p> {/* Content snippet of the result */}
-                </li>
-              ))}
-            </ul>
-          </>
-        ) : displayMode === 'searchResults' && searchResults.length > 0 && (
+        {displayMode === 'searchResults' && searchResults.length > 0 && (
           <>
             <h2>Search Results</h2>
             <ul>
@@ -210,23 +150,7 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
           </>
         )}
 
-        {isHistoryEnabled ? history[currentIndex] === 'flights' && flights.length > 0 && (
-          <>
-            <h2>Flight Search Results</h2>
-            <ul>
-              {flights.map((flight) => (
-                <li key={flight.id}>
-                  <h3>{flight.fromCity} to {flight.toCity}</h3>
-                  <p>Flight Number: {flight.airlines[0].flightNumber} - {flight.airlines[0].name}</p>
-                  <p>Departure: {flight.departureTime.dateTimeString}</p>
-                  <p>Arrival: {flight.arrivalTime.dateTimeString}</p>
-                  <p>Duration: {Math.floor(flight.duration / 60)}h {flight.duration % 60}m</p>
-                  <p>Price: ${flight.price}</p>
-                </li>
-              ))}
-            </ul>
-          </>
-        ) : displayMode === 'flights' && flights.length > 0 && (
+        {displayMode === 'flights' && flights.length > 0 && (
           <>
             <h2>Flight Search Results</h2>
             <ul>
@@ -244,22 +168,16 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
           </>
         )}
 
-        {isHistoryEnabled ? history[currentIndex] === 'calendar' && (
-          <CalendarPage /> // Render the CalendarPage component
-        ) : displayMode === 'calendar' && (
+        {displayMode === 'calendar' && ( // New condition for calendar display mode
           <CalendarPage /> // Render the CalendarPage component
         )}
 
-        {isHistoryEnabled ? history[currentIndex] === 'algorand' && (
-          <AlgorandPage /> // Render the AlgorandPage component
-        ) : displayMode === 'algorand' && (
-          <AlgorandPage /> // Render the AlgorandPage component
+        {displayMode === 'algorand' && ( // New condition for calendar display mode
+          <AlgorandPage /> // Render the CalendarPage component
         )}
         
         {/* Optional: Message when nothing is available */}
-        {isHistoryEnabled ? history[currentIndex] === null && (
-          <p>No results to display.</p>
-        ) : displayMode === null && (
+        {displayMode === null && (
           <p>No results to display.</p>
         )}
       </div>
