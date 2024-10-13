@@ -66,7 +66,7 @@ interface RestaurantModalProps {
   searchResults: any[]; // Add this prop for search results
   imageSearchResults: any[]; // Add this prop for image search results
   flights: any[]; // Add this prop for flight search results
-  generalReSearchResult: any[];
+  generalReSearchResult: string;
   displayMode: any;
   onClose: () => void; // Function to close the modal
 }

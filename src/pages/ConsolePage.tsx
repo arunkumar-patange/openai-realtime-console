@@ -184,7 +184,7 @@ export function ConsolePage() {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null); // State to hold generated image
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
   const [searchResults, setSearchResults] = useState<any[]>([]); // State to hold search results
-  const [generalReSearchResult, setgeneralReSearchResult] = useState<any[]>([]);
+  const [generalReSearchResult, setgeneralReSearchResult] = useState<string>('');
   const [displayMode, setDisplayMode] = useState<DisplayMode>(DisplayMode.NONE); // New state for display mode
   const [imageSearchResults, setImageSearchResults] = useState<any[]>([]); // State to hold image search results
   const [flights, setFlights] = useState<any[]>([]); // State to hold flight data
