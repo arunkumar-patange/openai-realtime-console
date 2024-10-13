@@ -55,7 +55,7 @@ export const generalReSearch = async (params: { query: string }) => {
 // Tool metadata for generalSearch
 export const generalSearchTool = {
   name: 'general_search',
-  description: 'Performs a general search based on the provided query.',
+  description: 'Performs a general search based on the provided query to fetch real time information.',
   parameters: {
     type: 'object',
     properties: {
