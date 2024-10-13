@@ -184,6 +184,7 @@ export function ConsolePage() {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null); // State to hold generated image
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
   const [searchResults, setSearchResults] = useState<any[]>([]); // State to hold search results
+  const [generalReSearchResult, setgeneralReSearchResult] = useState<any[]>([]);
   const [displayMode, setDisplayMode] = useState<DisplayMode>(DisplayMode.NONE); // New state for display mode
   const [imageSearchResults, setImageSearchResults] = useState<any[]>([]); // State to hold image search results
   const [flights, setFlights] = useState<any[]>([]); // State to hold flight data
@@ -525,11 +526,11 @@ export function ConsolePage() {
       if (error) {
         console.error(error); // Log the error message
         setRestaurants([]); // Reset to empty array on error
-        setDisplayMode(null); // Reset display mode
+        setDisplayMode(DisplayMode.NONE); // Reset display mode
         return { error: 'Failed to fetch restaurants' }; // Return failure message
       } else {
         setRestaurants(businesses); // Update state with fetched restaurant data
-        setDisplayMode('restaurants'); // Set display mode to restaurants
+        setDisplayMode(DisplayMode.RESTAURANTS); // Set display mode to restaurants
         return businesses; // Return the fetched businesses
       }
     });
@@ -540,7 +541,7 @@ export function ConsolePage() {
       try {
         const imageUrl = await generateImage({ prompt });
         setGeneratedImage(imageUrl); // Update state with generated image URL
-        setDisplayMode('generatedImage'); // Set display mode to generated image
+        setDisplayMode(DisplayMode.GENERATED_IMAGE); // Set display mode to generated image
         return imageUrl; // Return the generated image URL
       } catch (error) {
         console.error(error); // Log the error message
@@ -555,7 +556,7 @@ export function ConsolePage() {
       try {
         const results = await generalSearch({ query, search_depth, max_results });
         setSearchResults(results); // Update state with search results
-        setDisplayMode('searchResults');
+        setDisplayMode(DisplayMode.SEARCH_RESULTS);
         return results; // Return the search results
       } catch (error) {
         console.error(error); // Log the error message
@@ -575,7 +576,7 @@ export function ConsolePage() {
           return { error: 'Failed to fetch images' };
         } else {
           setImageSearchResults(images);
-          setDisplayMode('imageSearch')
+          setDisplayMode(DisplayMode.IMAGE_SEARCH)
           return images; // Return the image results
         }
       } catch (error) {
@@ -596,7 +597,7 @@ export function ConsolePage() {
           return { error: 'Failed to fetch flights' };
         } else {
           setFlights(flights);
-          setDisplayMode('flights');
+          setDisplayMode(DisplayMode.FLIGHTS);
           return flights; // Return the flight results
         }
       } catch (error) {
@@ -612,7 +613,7 @@ export function ConsolePage() {
       async ({ max_results }: { [key: string]: any }) => {
         try {
           const events = await showMyCalendar({ max_results }); // Call the showMyCalendar function
-          setDisplayMode('calendar'); // Set display mode to calendar
+          setDisplayMode(DisplayMode.CALENDAR); // Set display mode to calendar
           return events; // Return the fetched events
         } catch (error) {
           console.error(error); // Log the error message
@@ -622,12 +623,12 @@ export function ConsolePage() {
     );
 
     const tools = [
-      { tool: searchTransactionsTool, func: searchTransactions, displayMode: 'algorand' },
-      { tool: getAccountInformationTool, func: getAccountInformation, displayMode: 'algorand' },
-      { tool: getAssetInformationTool, func: getAssetInformation, displayMode: 'algorand' },
-      { tool: getBlockInformationTool, func: getBlockInformation, displayMode: 'algorand'},
-      { tool: getApplicationInformationTool, func: getApplicationInformation, displayMode: 'algorand' },
-      { tool: generalResearchTool, func: generalReSearch, displayMode: 'generalReSearch' },
+      { tool: searchTransactionsTool, func: searchTransactions, displayMode: DisplayMode.ALGORAND },
+      { tool: getAccountInformationTool, func: getAccountInformation, displayMode: DisplayMode.ALGORAND},
+      { tool: getAssetInformationTool, func: getAssetInformation, displayMode: DisplayMode.ALGORAND },
+      { tool: getBlockInformationTool, func: getBlockInformation, displayMode: DisplayMode.ALGORAND},
+      { tool: getApplicationInformationTool, func: getApplicationInformation, displayMode: DisplayMode.ALGORAND },
+      { tool: generalResearchTool, func: generalReSearch, displayMode: DisplayMode.RESERACH },
     ];
 
     tools.forEach(({ tool, func, displayMode }) => {
@@ -646,6 +647,9 @@ export function ConsolePage() {
           };
           const result = await func(defaultParams);
           setDisplayMode(displayMode); // Set display mode to calendar
+          if (displayMode === DisplayMode.RESERACH) {
+              setgeneralReSearchResult(result);
+          }
           return result;
         } catch (error) {
           console.error(`Error performing ${tool.name}:`, error);
@@ -764,6 +768,7 @@ export function ConsolePage() {
                   searchResults={searchResults}
                   imageSearchResults={imageSearchResults} // Pass image search results to the modal
                   flights={flights} // Pass flight search results to the modal
+                  generalReSearchResult={generalReSearchResult}
                   displayMode={displayMode} // Pass the display mode to the modal
                   onClose={() => setShowModal(false)}
                 />
