@@ -109,11 +109,11 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
         {displayMode === 'callResult' && callResult && (
           <>
             <h2>Call Results</h2>
-            <h2>Call Results</h2>
             <div className="conversation-interface">
               {callResult.map((message, index) => (
                 <div key={index} className="message">
-                  <p>{message}</p>
+                  <p>{message.role}</p>
+                  <p>{message.content}</p>
                 </div>
               ))}
             </div>
