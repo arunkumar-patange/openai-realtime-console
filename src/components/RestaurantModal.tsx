@@ -58,6 +58,7 @@ type DisplayMode =
   | 'calendar'
   | 'algorand'
   | 'generalReSearch'
+  | 'callResult'
   | null;
 
 interface RestaurantModalProps {
@@ -67,6 +68,7 @@ interface RestaurantModalProps {
   imageSearchResults: any[]; // Add this prop for image search results
   flights: any[]; // Add this prop for flight search results
   generalReSearchResult: string;
+  callResult: any[]; // Add this prop for flight search results
   displayMode: any;
   onClose: () => void; // Function to close the modal
 }
@@ -78,6 +80,7 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
   imageSearchResults,
   flights,
   generalReSearchResult,
+  callResult,
   displayMode,
   onClose
 }) => {
@@ -100,6 +103,20 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
                 </li>
               ))}
             </ul>
+          </>
+        )}
+
+        {displayMode === 'callResult' && callResult && (
+          <>
+            <h2>Call Results</h2>
+            <h2>Call Results</h2>
+            <div className="conversation-interface">
+              {callResult.map((message, index) => (
+                <div key={index} className="message">
+                  <p>{message}</p>
+                </div>
+              ))}
+            </div>
           </>
         )}
 

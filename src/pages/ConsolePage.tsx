@@ -12,7 +12,7 @@ const LOCAL_RELAY_SERVER_URL: string =
   process.env.REACT_APP_LOCAL_RELAY_SERVER_URL || '';
 
 import { useEffect, useRef, useCallback, useState } from 'react';
-
+import ReactMarkdown from 'react-markdown';
 import { RealtimeClient } from '@openai/realtime-api-beta';
 import { ItemType } from '@openai/realtime-api-beta/dist/lib/client.js';
 import { WavRecorder, WavStreamPlayer } from '../lib/wavtools/index.js';
@@ -35,6 +35,7 @@ import { generalReSearch, generalResearchTool } from '../utils/tools/generalSear
 import { searchFlights, searchFlightsTool } from '../utils/tools/searchFlights'; // Import the searchFlights tool
 import { imageSearch, imageSearchTool } from '../utils/tools/imageSearch'; // Import the imageSearch tool
 import { showMyCalendar, showMyCalendarTool } from '../utils/tools/showMyCalendar'; // Import the showMyCalendar tool
+import { makeCallTool, makeCall } from '../utils/tools/caller_agent'; // Import the showMyCalendar tool
 import {
   searchTransactions,
   searchTransactionsTool,
@@ -107,6 +108,7 @@ enum DisplayMode {
   CALENDAR = 'calendar',
   ALGORAND = 'algorand',
   RESERACH = 'generalReSearch',
+  CALLER = 'callResult',
   NONE = ''
 }
 
@@ -185,6 +187,7 @@ export function ConsolePage() {
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
   const [searchResults, setSearchResults] = useState<any[]>([]); // State to hold search results
   const [generalReSearchResult, setgeneralReSearchResult] = useState<string>('');
+  const [callResult, setcallResult] = useState<any[]>([]);
   const [displayMode, setDisplayMode] = useState<DisplayMode>(DisplayMode.NONE); // New state for display mode
   const [imageSearchResults, setImageSearchResults] = useState<any[]>([]); // State to hold image search results
   const [flights, setFlights] = useState<any[]>([]); // State to hold flight data
@@ -629,6 +632,7 @@ export function ConsolePage() {
       { tool: getBlockInformationTool, func: getBlockInformation, displayMode: DisplayMode.ALGORAND},
       { tool: getApplicationInformationTool, func: getApplicationInformation, displayMode: DisplayMode.ALGORAND },
       { tool: generalResearchTool, func: generalReSearch, displayMode: DisplayMode.RESERACH },
+      { tool: makeCallTool, func: makeCall, displayMode: DisplayMode.CALLER },
     ];
 
     tools.forEach(({ tool, func, displayMode }) => {
@@ -643,12 +647,18 @@ export function ConsolePage() {
             roundNumber: 1,
             appId: 1,
             query: '',
+            from: '',
+            to: '',
+            prompt:'',
             ...params,
           };
           const result = await func(defaultParams);
           setDisplayMode(displayMode); // Set display mode to calendar
           if (displayMode === DisplayMode.RESERACH) {
             setgeneralReSearchResult(result.research);
+          }
+          if (displayMode === DisplayMode.CALLER) {
+            setcallResult(result);
           }
           return result;
         } catch (error) {
@@ -769,6 +779,7 @@ export function ConsolePage() {
                   imageSearchResults={imageSearchResults} // Pass image search results to the modal
                   flights={flights} // Pass flight search results to the modal
                   generalReSearchResult={generalReSearchResult}
+                  callResult={callResult}
                   displayMode={displayMode} // Pass the display mode to the modal
                   onClose={() => setShowModal(false)}
                 />
@@ -885,10 +896,12 @@ export function ConsolePage() {
                         )}
                       {!conversationItem.formatted.tool &&
                         conversationItem.role === 'assistant' && (
-                          <div>
+                           <div className='react-markdown'>
+                            <ReactMarkdown>
                             {conversationItem.formatted.transcript ||
                               conversationItem.formatted.text ||
                               '(truncated)'}
+                            </ReactMarkdown>
                           </div>
                         )}
                       {conversationItem.formatted.file && (
