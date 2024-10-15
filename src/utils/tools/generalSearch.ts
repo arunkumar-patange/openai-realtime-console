@@ -34,10 +34,28 @@ export const generalSearch = async (params: { query: string; search_depth: strin
   }
 };
 
+export const generalReSearch = async (params: { query: string }) => {
+  const { query } = params;
+  try {
+    const response = await fetch(`https://api-dev.braininc.net/be/gpt-research/report/research_report?query=${query}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `token ${process.env.REACT_APP_PRIVATE_AUTH_TOKEN}`, // Replace with your actual API token
+      }
+    });
+
+    const responseData = await response.text()
+    return {"research": responseData}; // Return the search results
+  } catch (error) {
+    console.error('Error performing search:', error);
+    throw new Error('Failed to perform search'); // Throw an error on fetch failure
+  }
+};
+
 // Tool metadata for generalSearch
 export const generalSearchTool = {
   name: 'general_search',
-  description: 'Performs a general search based on the provided query.',
+  description: 'Performs a general search based on the provided query to fetch real time information.',
   parameters: {
     type: 'object',
     properties: {
@@ -53,6 +71,21 @@ export const generalSearchTool = {
         type: 'number',
         description: 'Maximum number of results to return.',
       },
+    },
+    required: ['query', 'search_depth', 'max_results'],
+  },
+};
+
+export const generalResearchTool = {
+  name: 'general_research_tool',
+  description: 'Performs a research online based on the provided query.',
+  parameters: {
+    type: 'object',
+    properties: {
+        query: {
+          type: 'string',
+          description: 'The query for the search.',
+        }
     },
     required: ['query', 'search_depth', 'max_results'],
   },

@@ -12,7 +12,7 @@ const LOCAL_RELAY_SERVER_URL: string =
   process.env.REACT_APP_LOCAL_RELAY_SERVER_URL || '';
 
 import { useEffect, useRef, useCallback, useState } from 'react';
-
+import ReactMarkdown from 'react-markdown';
 import { RealtimeClient } from '@openai/realtime-api-beta';
 import { ItemType } from '@openai/realtime-api-beta/dist/lib/client.js';
 import { WavRecorder, WavStreamPlayer } from '../lib/wavtools/index.js';
@@ -31,9 +31,11 @@ import { isJsxOpeningLikeElement } from 'typescript';
 import { searchRestaurants, searchRestaurantsTool } from '../utils/tools/searchRestaurants';
 import { generateImage, generateImageTool } from '../utils/tools/generateImage';
 import { generalSearch, generalSearchTool } from '../utils/tools/generalSearch';
+import { generalReSearch, generalResearchTool } from '../utils/tools/generalSearch';
 import { searchFlights, searchFlightsTool } from '../utils/tools/searchFlights'; // Import the searchFlights tool
 import { imageSearch, imageSearchTool } from '../utils/tools/imageSearch'; // Import the imageSearch tool
 import { showMyCalendar, showMyCalendarTool } from '../utils/tools/showMyCalendar'; // Import the showMyCalendar tool
+import { makeCallTool, makeCall } from '../utils/tools/caller_agent'; // Import the showMyCalendar tool
 import {
   searchTransactions,
   searchTransactionsTool,
@@ -95,6 +97,19 @@ interface Flight {
   // arrival: string;
   // price: number;
   // Add more properties as needed
+}
+
+enum DisplayMode {
+  RESTAURANTS = 'restaurants',
+  GENERATED_IMAGE = 'generatedImage',
+  SEARCH_RESULTS = 'searchResults',
+  IMAGE_SEARCH = 'imageSearch',
+  FLIGHTS = 'flights',
+  CALENDAR = 'calendar',
+  ALGORAND = 'algorand',
+  RESERACH = 'generalReSearch',
+  CALLER = 'callResult',
+  NONE = ''
 }
 
 export function ConsolePage() {
@@ -171,7 +186,9 @@ export function ConsolePage() {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null); // State to hold generated image
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
   const [searchResults, setSearchResults] = useState<any[]>([]); // State to hold search results
-  const [displayMode, setDisplayMode] = useState<'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | 'flights' | 'calendar' | null>(null); // New state for display mode
+  const [generalReSearchResult, setgeneralReSearchResult] = useState<string>('');
+  const [callResult, setcallResult] = useState<any[]>([]);
+  const [displayMode, setDisplayMode] = useState<DisplayMode>(DisplayMode.NONE); // New state for display mode
   const [imageSearchResults, setImageSearchResults] = useState<any[]>([]); // State to hold image search results
   const [flights, setFlights] = useState<any[]>([]); // State to hold flight data
   const [typedMessage, setTypedMessage] = useState(''); // State to hold the typed message
@@ -512,11 +529,11 @@ export function ConsolePage() {
       if (error) {
         console.error(error); // Log the error message
         setRestaurants([]); // Reset to empty array on error
-        setDisplayMode(null); // Reset display mode
+        setDisplayMode(DisplayMode.NONE); // Reset display mode
         return { error: 'Failed to fetch restaurants' }; // Return failure message
       } else {
         setRestaurants(businesses); // Update state with fetched restaurant data
-        setDisplayMode('restaurants'); // Set display mode to restaurants
+        setDisplayMode(DisplayMode.RESTAURANTS); // Set display mode to restaurants
         return businesses; // Return the fetched businesses
       }
     });
@@ -527,7 +544,7 @@ export function ConsolePage() {
       try {
         const imageUrl = await generateImage({ prompt });
         setGeneratedImage(imageUrl); // Update state with generated image URL
-        setDisplayMode('generatedImage'); // Set display mode to generated image
+        setDisplayMode(DisplayMode.GENERATED_IMAGE); // Set display mode to generated image
         return imageUrl; // Return the generated image URL
       } catch (error) {
         console.error(error); // Log the error message
@@ -542,7 +559,7 @@ export function ConsolePage() {
       try {
         const results = await generalSearch({ query, search_depth, max_results });
         setSearchResults(results); // Update state with search results
-        setDisplayMode('searchResults');
+        setDisplayMode(DisplayMode.SEARCH_RESULTS);
         return results; // Return the search results
       } catch (error) {
         console.error(error); // Log the error message
@@ -562,7 +579,7 @@ export function ConsolePage() {
           return { error: 'Failed to fetch images' };
         } else {
           setImageSearchResults(images);
-          setDisplayMode('imageSearch')
+          setDisplayMode(DisplayMode.IMAGE_SEARCH)
           return images; // Return the image results
         }
       } catch (error) {
@@ -583,7 +600,7 @@ export function ConsolePage() {
           return { error: 'Failed to fetch flights' };
         } else {
           setFlights(flights);
-          setDisplayMode('flights');
+          setDisplayMode(DisplayMode.FLIGHTS);
           return flights; // Return the flight results
         }
       } catch (error) {
@@ -599,7 +616,7 @@ export function ConsolePage() {
       async ({ max_results }: { [key: string]: any }) => {
         try {
           const events = await showMyCalendar({ max_results }); // Call the showMyCalendar function
-          setDisplayMode('calendar'); // Set display mode to calendar
+          setDisplayMode(DisplayMode.CALENDAR); // Set display mode to calendar
           return events; // Return the fetched events
         } catch (error) {
           console.error(error); // Log the error message
@@ -609,14 +626,16 @@ export function ConsolePage() {
     );
 
     const tools = [
-      { tool: searchTransactionsTool, func: searchTransactions },
-      { tool: getAccountInformationTool, func: getAccountInformation },
-      { tool: getAssetInformationTool, func: getAssetInformation },
-      { tool: getBlockInformationTool, func: getBlockInformation },
-      { tool: getApplicationInformationTool, func: getApplicationInformation },
+      { tool: searchTransactionsTool, func: searchTransactions, displayMode: DisplayMode.ALGORAND },
+      { tool: getAccountInformationTool, func: getAccountInformation, displayMode: DisplayMode.ALGORAND},
+      { tool: getAssetInformationTool, func: getAssetInformation, displayMode: DisplayMode.ALGORAND },
+      { tool: getBlockInformationTool, func: getBlockInformation, displayMode: DisplayMode.ALGORAND},
+      { tool: getApplicationInformationTool, func: getApplicationInformation, displayMode: DisplayMode.ALGORAND },
+      { tool: generalResearchTool, func: generalReSearch, displayMode: DisplayMode.RESERACH },
+      { tool: makeCallTool, func: makeCall, displayMode: DisplayMode.CALLER },
     ];
 
-    tools.forEach(({ tool, func }) => {
+    tools.forEach(({ tool, func, displayMode }) => {
       client.addTool(tool, async (params: { [key: string]: any }) => {
         try {
           const defaultParams = {
@@ -627,10 +646,20 @@ export function ConsolePage() {
             maxRound: 0,
             roundNumber: 1,
             appId: 1,
+            query: '',
+            from: '',
+            to: '',
+            prompt:'',
             ...params,
           };
           const result = await func(defaultParams);
-          setDisplayMode('algorand'); // Set display mode to calendar
+          setDisplayMode(displayMode); // Set display mode to calendar
+          if (displayMode === DisplayMode.RESERACH) {
+            setgeneralReSearchResult(result.research);
+          }
+          if (displayMode === DisplayMode.CALLER) {
+            setcallResult(result);
+          }
           return result;
         } catch (error) {
           console.error(`Error performing ${tool.name}:`, error);
@@ -749,6 +778,8 @@ export function ConsolePage() {
                   searchResults={searchResults}
                   imageSearchResults={imageSearchResults} // Pass image search results to the modal
                   flights={flights} // Pass flight search results to the modal
+                  generalReSearchResult={generalReSearchResult}
+                  callResult={callResult}
                   displayMode={displayMode} // Pass the display mode to the modal
                   onClose={() => setShowModal(false)}
                 />
@@ -865,10 +896,12 @@ export function ConsolePage() {
                         )}
                       {!conversationItem.formatted.tool &&
                         conversationItem.role === 'assistant' && (
-                          <div>
+                           <div className='react-markdown'>
+                            <ReactMarkdown>
                             {conversationItem.formatted.transcript ||
                               conversationItem.formatted.text ||
                               '(truncated)'}
+                            </ReactMarkdown>
                           </div>
                         )}
                       {conversationItem.formatted.file && (
