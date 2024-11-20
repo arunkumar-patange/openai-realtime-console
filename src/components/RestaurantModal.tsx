@@ -1,6 +1,7 @@
 import React from 'react';
 import './RestaurantModal.scss'; // Import your styles
 import CalendarPage from '../pages/CalendarPage'; // Corrected import statement
+import AlgorandPage from '../pages/AlgorandPage'; // Corrected import statement
 
 interface Restaurant {
   id: string;
@@ -53,7 +54,7 @@ interface RestaurantModalProps {
   searchResults: any[]; // Add this prop for search results
   imageSearchResults: any[]; // Add this prop for image search results
   flights: any[]; // Add this prop for flight search results
-  displayMode: 'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | 'flights' | 'calendar' | null; // Added 'calendar' mode
+  displayMode: 'restaurants' | 'generatedImage' | 'searchResults' | 'imageSearch' | 'flights' | 'calendar' | 'algorand' | null; // Added 'calendar' mode
   onClose: () => void; // Function to close the modal
 }
 
@@ -145,6 +146,10 @@ const RestaurantModal: React.FC<RestaurantModalProps> = ({
 
         {displayMode === 'calendar' && ( // New condition for calendar display mode
           <CalendarPage /> // Render the CalendarPage component
+        )}
+
+        {displayMode === 'algorand' && ( // New condition for calendar display mode
+          <AlgorandPage /> // Render the CalendarPage component
         )}
         
         {/* Optional: Message when nothing is available */}
